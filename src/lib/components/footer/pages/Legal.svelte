@@ -1,0 +1,1 @@
+<p>Legal page</p>

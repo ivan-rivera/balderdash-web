@@ -16,11 +16,8 @@ export default {
 		skeleton({
 			themes: {
 				preset: [
-					{
-						name: 'modern',
-						enhancements: true,
-					},
-				],
+					{ name: "crimson", enhancements: true }
+				] 
 			},
 		}),
 	],

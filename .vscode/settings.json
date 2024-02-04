@@ -2,6 +2,8 @@
 	"prettier.documentSelectors": [
 		"**/*.svelte"
 	],
+	"css.lint.unknownAtRules": "ignore",
+	"css.customData": [".vscode/tailwind.json"],
 	"tailwindCSS.classAttributes": [
 		"class",
 		"accent",

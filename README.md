@@ -36,3 +36,21 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+Todo items:
+- Test footer
+- Test header
+- Test /new (user validation, categories, button, conditional text, home, launch)
+- Set up /join
+- Test /join (validation, home, launch)
+- Adapt for mobile
+- Write meta pages
+- Hook up Firebase
+- ...
+- Integration testing with many users?
+- Set up GH CI/CD test + deploy
+
+UI TODO:
+- Display "you (or PlayerX) is the dasher"
+- Display session ID in the footer
+- If you have an active session, then expose a "Resume Game" option on the home page -> validate state
