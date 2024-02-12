@@ -1,4 +1,5 @@
 const config = {
+    devPort: 5173,
     appVersion: "2.0.0",
     maxUsernameLength: 12,
     rounds: {

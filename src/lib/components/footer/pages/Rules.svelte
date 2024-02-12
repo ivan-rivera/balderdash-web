@@ -1,1 +1,0 @@
-<p>Rules page</p>

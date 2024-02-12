@@ -38,7 +38,6 @@ You can preview the production build with `npm run preview`.
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 Todo items:
-- Test footer
 - Test header
 - Test /new (user validation, categories, button, conditional text, home, launch)
 - Set up /join

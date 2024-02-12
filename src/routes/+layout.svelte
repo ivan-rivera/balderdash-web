@@ -2,8 +2,8 @@
 	import '../app.postcss';
 	import { AppShell } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
-	import Nav from '$lib/components/footer/Nav.svelte'; 
-	import Header from '$lib/components/Header.svelte';
+	import Footer from '../components/footer/Footer.svelte'; 
+	import Header from '../components/Header.svelte';
 	initializeStores();
 </script>
 
@@ -13,6 +13,6 @@
 		<slot/>
 	</div>
 	<svelte:fragment slot="footer">
-		<Nav/>
+		<Footer/>
 	</svelte:fragment>
 </AppShell>

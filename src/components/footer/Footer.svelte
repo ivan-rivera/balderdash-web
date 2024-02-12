@@ -11,24 +11,9 @@
     import { faGithub } from '@fortawesome/free-brands-svg-icons';
     import Fa from 'svelte-fa';
     import config from '$lib/config';
-    import About from './pages/About.svelte';
-    import Contact from './pages/Contact.svelte';
-    import Legal from './pages/Legal.svelte';
-    import Rules from './pages/Rules.svelte';
+    import { pages } from './content';
 
     const drawerStore = getDrawerStore();
-
-    /**
-     * @type {{ [key: string]: SvelteComponent }}
-     * @description Mapping from string to Footer component.
-     */
-    const pages = {
-        "About": About,
-        "Contact": Contact,
-        "Legal": Legal,
-        "Rules": Rules,
-    }
-
     const drawerSettings = {rounded: 'rounded-xl', position: 'bottom'}
 </script>
 
