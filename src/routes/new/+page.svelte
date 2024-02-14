@@ -1,15 +1,18 @@
 <script>
+    // TODO: revisit the spreader class and maybe combine 
+    // TODO: instantiate a new game
     import { goto } from '$app/navigation';
     import Fa from 'svelte-fa';
     import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
     import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
-    import config from '$lib/config';
+    import { config, usernameRegex } from '$lib/config';
+    import Username from '../../components/Username.svelte';
 
     let categories = config.categories;
     let roundsChoice = config.rounds.min;
     let aiChoice = config.aiGuesses.min;
     let username = "";
-    $: isValidUsername = /^[a-zA-Z][a-zA-Z0-9-]{0,11}$/.test(username);
+    $: isValidUsername = usernameRegex.test(username);
     $: isButtonDisabled = !isValidUsername || username.length === 0;
     $: buttonVariant = isButtonDisabled ? "variant-ghost": "variant-filled";
     function goHome() { goto('/') }
@@ -30,15 +33,7 @@
     </span>
     <form id="new-session">
         <!-- Username entry -->
-        <label class="label spreader">
-            <div class="font-bold">Your Username</div>
-            <input class="input" title="username" type="text" placeholder="Player1" bind:value={username} required/>
-            {#if !isValidUsername}
-                <p class="text-sm italic text-tertiary-700">
-                    You can choose up to {config.maxUsernameLength} letters (must start with one), numbers and dashes
-                </p>
-            {/if}
-        </label>
+        <Username/>
         <!-- Number of rounds selection -->
         <div class="spreader">
             <RangeSlider name="round-slider" bind:value={roundsChoice} max={config.rounds.max} step={1} ticked>

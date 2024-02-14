@@ -44,4 +44,6 @@ const config = {
     ]
 }
 
-export default config;
+let usernameRegex = /^[a-zA-Z][a-zA-Z0-9-]{0,11}$/;
+
+export { config, usernameRegex };

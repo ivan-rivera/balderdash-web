@@ -1,4 +1,5 @@
 <script>
+    // TODO: add resume button and validate game on mount
     import { goto } from '$app/navigation';
     function goToNew() { goto('/new') }
     function goToJoin() { goto('/join') }

@@ -7,7 +7,7 @@
 // TODO: add resume button
 
 import { test, expect } from '@playwright/test';
-import config from '../../src/lib/config';
+import { config } from '../../src/lib/config';
 
 const baseUrl = `http://localhost:${config.devPort}`;
 
