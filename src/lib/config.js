@@ -1,9 +1,9 @@
 const config = {
-    devPort: 5173,
+    devPort: 4173,
     appVersion: "2.0.0",
     maxUsernameLength: 12,
     rounds: {
-        "min": 3,
+        "min": 4,
         "max": 15,
     },
     aiGuesses: {
@@ -44,6 +44,4 @@ const config = {
     ]
 }
 
-let usernameRegex = /^[a-zA-Z][a-zA-Z0-9-]{0,11}$/;
-
-export { config, usernameRegex };
+export { config };

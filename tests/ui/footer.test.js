@@ -1,22 +1,24 @@
-
 import { test, expect } from '@playwright/test';
-//import { pages } from '../../src/components/footer/content';
-import config from '../../src/lib/config';
+import config from '../../playwright.config'
 
-// test.describe("Test footer UI", () => {
-//     test.beforeEach(async ({ page }) => {
-//         await page.goto(config.devUrl);
-//     });
-//     // Object.keys(pages).forEach((button) => {
-//     //     test(`Test ${button} opens and closes the drawer correctly`, async ({page}) => {
-//     //         const modalHeader = await page.locator('h1', { hasText: button });
-//     //         await expect(page.isVisible(`text=${button}`)).toBe(true);
-//     //         await expect(modalHeader).not.toBeVisible();
-//     //         await page.click(`text=${button}`);
-//     //         await expect(modalHeader).toBeVisible();
-//     //         await page.keyboard.press('Escape');
-//     //         await expect(modalHeader).not.toBeVisible();
-//     //     })
-//     // })
-// })
+// @ts-ignore
+const baseUrl = `http://localhost:${config.webServer.port}`;
+const footerPages = ['About', 'Contact', 'Legal', 'Rules']
 
+
+test.beforeEach(async ({ page }) => {
+    await page.goto(baseUrl);
+    await page.waitForLoadState('networkidle');
+});
+
+footerPages.forEach((button) => {
+    test(`Test ${button} opens and closes the drawer correctly`, async ({page}) => {
+        const selector = `text=${button}`
+        await page.waitForSelector(selector, { state: 'visible' });
+        await expect(page.locator('h1', { hasText: button })).toHaveCount(0);  // footer modal is closed
+        await page.locator(selector).click();
+        await expect(page.locator('h1', { hasText: button })).toHaveCount(1); // footer modal is now open
+        await page.keyboard.press('Escape');
+        await expect(page.locator('h1', { hasText: button })).toHaveCount(0);  // footer modal is closed again
+    })
+})

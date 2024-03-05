@@ -6,15 +6,24 @@
      * a link to the GitHub repo, version number and the theme switch.
      * This file also defines the drawer that is used to display the help pages
      */
-
+    import About from './pages/About.svelte'
+    import Contact from './pages/Contact.svelte';
+    import Legal from './pages/Legal.svelte';
+    import Rules from './pages/Rules.svelte';
     import { getDrawerStore, Drawer, LightSwitch } from '@skeletonlabs/skeleton';
     import { faGithub } from '@fortawesome/free-brands-svg-icons';
     import Fa from 'svelte-fa';
-    import config from '$lib/config';
-    import { pages } from './content';
+    import { config } from '$lib/config';
 
     const drawerStore = getDrawerStore();
     const drawerSettings = {rounded: 'rounded-xl', position: 'bottom'}
+
+    export const pages = {
+        "About": About,
+        "Contact": Contact,
+        "Legal": Legal,
+        "Rules": Rules,
+    }
 </script>
 
 <div>

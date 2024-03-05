@@ -12,7 +12,7 @@
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
     "test:integration": "playwright test integration",
-    "test:ui": "vite dev && playwright test ui",
+    "test:ui": "playwright test ui",
     "test:lib": "vitest lib",
     "prepare": "svelte-kit sync"
   },

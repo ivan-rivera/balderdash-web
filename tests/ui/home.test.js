@@ -7,13 +7,15 @@
 // TODO: add resume button
 
 import { test, expect } from '@playwright/test';
-import { config } from '../../src/lib/config';
+import config from '../../playwright.config' 
 
-const baseUrl = `http://localhost:${config.devPort}`;
+// @ts-ignore
+const baseUrl = `http://localhost:${config.webServer.port}`;
 
 
 test.beforeEach(async ({ page }) => {
     await page.goto(baseUrl);
+    await page.waitForLoadState('networkidle');
 });
 
 test('Home page has header', async ({ page }) => {
@@ -22,14 +24,16 @@ test('Home page has header', async ({ page }) => {
 });
 
 test('should contain the button "Start Game" which navigates to /new', async ({ page }) => {
-    await page.waitForSelector('text=Start Game', { state: 'visible' });
-    await page.click('text=Start Game');
-    await expect(page).toHaveURL(`${baseUrl}/new`);
+    const selector = 'text=Start Game'
+    await page.waitForSelector(selector, { state: 'visible' });
+    await page.locator(selector).click();
+    await expect(page).toHaveURL('/new');
 })
 
 test('should contain the button "Join Game" which navigates to /join', async ({ page }) => {
-    await page.waitForSelector('text=Join Game', { state: 'visible' });
-    await page.click('text=Join Game');
-    await expect(page).toHaveURL(`${baseUrl}/join`);
+    const selector = 'text=Join Game'
+    await page.waitForSelector(selector, { state: 'visible' });
+    await page.locator(selector).click();
+    await expect(page).toHaveURL('/join');
 })
 
