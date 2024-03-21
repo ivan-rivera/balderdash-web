@@ -1,64 +1,95 @@
 <script>
-    // TODO: instantiate a new game
-    import Fa from 'svelte-fa';
-    import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
-    import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
-    import { config } from '$lib/config';
-    import EntryForm from '../../components/EntryForm.svelte';
+	/**
+	 * @typedef {import("../../lib/types.js").Category} Category
+	 */
 
-    let categories = config.categories;
-    let roundsChoice = config.rounds.min;
-    let aiChoice = config.aiGuesses.min;
+	import Fa from 'svelte-fa';
+	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+	import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
+	import { createSession, handleSessionJoinOutcome } from '$lib/session';
+	import { config } from '$lib/config';
+	import EntryForm from '../../components/EntryForm.svelte';
 
+	const toastStore = getToastStore();
+	let username = '';
+	let categories = config.categories;
+	let roundsChoice = config.rounds.min;
+	let aiChoice = config.aiGuesses.min;
 
-    /** @param {string} text */
-    let textToId = (text) => text.toLowerCase().replace(/\s/g, '-');
+	$: selectedCategories = categories
+		.filter((category) => category.enabled)
+		.map((category) => category.name);
 
-    let submitHandler = () => {
-        console.log("it worked");
-    }
+	/** @param {string} text */
+	let textToId = (text) => text.toLowerCase().replace(/\s/g, '-');
+
+	let submitHandler = async () => {
+		const outcome = await createSession(
+			username,
+			roundsChoice,
+			aiChoice,
+			/** @type {Category[]} */ (selectedCategories)
+		);
+		handleSessionJoinOutcome(outcome, username, toastStore);
+	};
 </script>
 
 <main>
-    <!-- New Game heading -->
-    <h1 class="h1 text-center">New Game</h1>
-    <span class="inline-flex small-gap gap-x-1 items-center justify-center w-full">
-        <span class="text-lg"><Fa icon={faCircleExclamation}/></span>
-        <span>Make sure you are familiar with the <span class="attention">rules</span> before you start!</span>
-    </span>
-    <EntryForm onSubmit={submitHandler}>
-        <!-- Target rounds -->
-        <div class="small-gap">
-            <RangeSlider name="round-slider" bind:value={roundsChoice} min={config.rounds.min} max={config.rounds.max} step={1} ticked>
-                <div class="flex justify-between items-center">
-                    <div class="font-bold">Rounds to play</div>
-                    <div class="text-xs">{roundsChoice} / {config.rounds.max}</div>
-                </div>
-            </RangeSlider> 
-            <p>We recommend at least 1 round per player</p>    
-        </div>
-        <!-- AI guesses selection -->
-        <div class="small-gap">
-            <RangeSlider name="ai-slider" bind:value={aiChoice} max={config.aiGuesses.max} step={1} ticked>
-                <div class="flex justify-between items-center">
-                    <div class="font-bold">AI Guesses</div>
-                    <div class="text-xs">{aiChoice} / {config.aiGuesses.max}</div>
-                </div>
-            </RangeSlider>
-            <p>You can add phony AI answers to make the game more fun</p>    
-        </div>
-        <!-- Categories to include selection -->
-        <div class="small-gap">
-            <div class="font-bold">Categories To Include</div>
-            <div class="small-gap">
-                {#each categories as category}
-                    <SlideToggle name='slider-{textToId(category.name)}' bind:checked={category.enabled}>
-                        <span class="inline-block text-left">
-                            <span class="text-primary-500">{category.name}</span>: {category.description}
-                        </span>
-                    </SlideToggle>
-                {/each}
-            </div>
-        </div>
-    </EntryForm>
+	<!-- New Game heading -->
+	<h1 class="h1 text-center">New Game</h1>
+	<span class="inline-flex small-gap gap-x-1 items-center justify-center w-full">
+		<span class="text-lg"><Fa icon={faCircleExclamation} /></span>
+		<span
+			>Make sure you are familiar with the <span class="attention">rules</span> before you start!</span
+		>
+	</span>
+	<EntryForm bind:username onSubmit={submitHandler}>
+		<!-- Target rounds -->
+		<div class="small-gap">
+			<RangeSlider
+				name="round-slider"
+				bind:value={roundsChoice}
+				min={config.rounds.min}
+				max={config.rounds.max}
+				step={1}
+				ticked
+			>
+				<div class="flex justify-between items-center">
+					<div class="font-bold">Rounds to play</div>
+					<div class="text-xs">{roundsChoice} / {config.rounds.max}</div>
+				</div>
+			</RangeSlider>
+			<p>We recommend at least 1 round per player</p>
+		</div>
+		<!-- AI guesses selection -->
+		<div class="small-gap">
+			<RangeSlider
+				name="ai-slider"
+				bind:value={aiChoice}
+				max={config.aiGuesses.max}
+				step={1}
+				ticked
+			>
+				<div class="flex justify-between items-center">
+					<div class="font-bold">AI Guesses</div>
+					<div class="text-xs">{aiChoice} / {config.aiGuesses.max}</div>
+				</div>
+			</RangeSlider>
+			<p>You can add phony AI answers to make the game more fun</p>
+		</div>
+		<!-- Categories to include selection -->
+		<div class="small-gap">
+			<div class="font-bold">Categories To Include</div>
+			<div class="small-gap">
+				{#each categories as category}
+					<SlideToggle name="slider-{textToId(category.name)}" bind:checked={category.enabled}>
+						<span class="inline-block text-left">
+							<span class="text-primary-500">{category.name}</span>: {category.description}
+						</span>
+					</SlideToggle>
+				{/each}
+			</div>
+		</div>
+	</EntryForm>
 </main>

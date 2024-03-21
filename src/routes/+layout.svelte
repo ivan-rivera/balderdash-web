@@ -1,18 +1,19 @@
 <script>
 	import '../app.postcss';
-	import { AppShell } from '@skeletonlabs/skeleton';
+	import { AppShell, Toast } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
-	import Footer from '../components/footer/Footer.svelte'; 
+	import Footer from '../components/footer/Footer.svelte';
 	import Header from '../components/Header.svelte';
 	initializeStores();
 </script>
 
+<Toast />
 <AppShell>
-	<Header/>
+	<Header />
 	<div class="max-w-lg mx-auto">
-		<slot/>
+		<slot />
 	</div>
 	<svelte:fragment slot="footer">
-		<Footer/>
+		<Footer />
 	</svelte:fragment>
 </AppShell>

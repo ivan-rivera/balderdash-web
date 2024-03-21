@@ -38,6 +38,7 @@ You can preview the production build with `npm run preview`.
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 Todo items:
+- Add double-bluff logic: guessers can opt for a double bluff, if no one votes for them or if their answer is correct, they get minus 3 points, but if someone does vote for them, each vote counts for 2
 - Add a scoreboard to footer (look for appropriate progress bars)
 - Test header
 - Test /new (user validation, categories, button, conditional text, home, launch)
