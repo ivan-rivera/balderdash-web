@@ -1,19 +1,64 @@
 <script>
 	import Fa from 'svelte-fa';
+	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { faCircleExclamation, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-	import { sessionPlayers, sessionHost, sessionAiGuesses, roundLimit, sessionCategories } from '$lib/store.js';
+	import {
+		sessionPlayers,
+		sessionHost,
+		sessionAiGuesses,
+		roundLimit,
+		sessionCategories,
+	} from '$lib/store.js';
 	import { config } from '$lib/config';
 	import { getButtonVariant } from '$lib/utils';
 	import { launchGame } from '$lib/session';
+	import { GenericError } from '../lib/types.js';
 
-    $: categories = $sessionCategories.join(', ');
+	$: categories = $sessionCategories.join(', ');
 	$: isButtonDisabled = $sessionPlayers.length < config.minPlayersRequired;
 	$: buttonVariant = getButtonVariant(isButtonDisabled);
+	const toastStore = getToastStore();
 	let username = localStorage.getItem('username') ?? 'unknown';
 	let sessionId = localStorage.getItem('sessionId') ?? 'unknown';
-	const invite = () => {
-		// TODO: implement invite functionality
-		console.log('Inviting players');
+	let invitationText = 'Join me for a game of Balderdash!';
+	let invitationUrl = `${config.url}/join?id=${sessionId}`;
+	let invitationTextAndUrl = `${invitationText} URL: ${invitationUrl}`;
+
+	/**
+	 * Trigger an error toast
+	 * @param {any} error
+	 */
+	function triggerError(error) {
+		let errorMessage = /** @type {GenericError} */ (error).message ?? JSON.stringify(error);
+		toastStore.trigger({
+			message: errorMessage,
+			timeout: config.errorTimeout,
+			background: 'variant-filled-error',
+		});
+	}
+	const invite = async () => {
+		if (navigator === undefined) {
+			triggerError(new GenericError('Navigator not available'));
+		} else if (navigator.share) {
+			try {
+				await navigator.share({ title: 'Invitation', text: invitationTextAndUrl });
+			} catch (error) {
+				triggerError(error);
+			}
+		} else if (navigator.clipboard === undefined || navigator.clipboard.writeText === undefined) {
+			triggerError(new GenericError('This functionality is not supported on your device'));
+		} else {
+			try {
+				await navigator.clipboard.writeText(invitationTextAndUrl);
+				toastStore.trigger({
+					message: 'Invitation copied to clipboard!',
+					timeout: config.errorTimeout,
+					background: 'variant-filled-success',
+				});
+			} catch (error) {
+				triggerError(error);
+			}
+		}
 	};
 </script>
 
@@ -32,7 +77,7 @@
 		</ul>
 		<div class="border-2 border-surface-400 my-10" />
 		<h2 class="h2 mb-5">Game Details</h2>
-		<div class="text-left text-lg">
+		<div class="text-left text-sm xs:text-lg">
 			<div>
 				<span class="session-detail">Session ID: </span>
 				<span>{sessionId}</span>

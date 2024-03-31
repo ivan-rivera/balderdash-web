@@ -1,14 +1,12 @@
 <script>
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import lightImage from '$lib/assets/error-light.svg';
-	import darkImage from '$lib/assets/error-dark.svg';
-	$: errorMessage = ($page.error || { message: 'Something went wrong' }).message;
+	import lightImage from '$lib/assets/404-light.svg';
+	import darkImage from '$lib/assets/404-dark.svg';
 </script>
 
 <div class="text-center">
-	<h1 class="h1">Error</h1>
-	<p class="py-5">Message: {errorMessage}</p>
+	<h1 class="h1 pb-10">No Such Session</h1>
+	<p>The session you want to join doesn't exist!</p>
 	<div class="flex justify-center py-12">
 		<img src={lightImage} alt="light-page-not-found" class="dark:hidden" />
 		<img src={darkImage} alt="dark-page-not-found" class="hidden dark:block" />

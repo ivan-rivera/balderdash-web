@@ -1,27 +1,25 @@
 <script>
-	import { roundLimit, currentRound, currentRoundState, isDasher } from '$lib/store.js';
-	import { GenericError, ROUND_STATES } from '$lib/types';
-	import Selecting from './round/selecting/Selecting.svelte';
-	import Guessing from './round/guessing/Guessing.svelte';
-	import Marking from './round/marking/Marking.svelte';
-	import Voting from './round/voting/Voting.svelte';
-	import Revealing from './round/revealing/Revealing.svelte';
-	import Tallying from './round/tallying/Tallying.svelte';
-	import { onMount } from 'svelte';
-    import { error } from '@sveltejs/kit';
-	import { applyAction } from '$app/forms';
+	// TODO: add kick player logic
+	import {
+		roundLimit,
+		currentRound,
+		currentRoundState,
+		isDasher,
+		currentRoundDasher,
+		sessionPlayers,
+	} from '$lib/store.js';
+	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { ROUND_STATES } from '$lib/types';
+	import Selecting from './round/Selecting.svelte';
+	import Guessing from './round/Guessing.svelte';
+	import Marking from './round/Marking.svelte';
+	import Voting from './round/Voting.svelte';
+	import Revealing from './round/Revealing.svelte';
+	import Tallying from './round/Tallying.svelte';
+	import { toTitleCase } from '$lib/utils';
+	import { config } from '$lib/config';
 
-	/**
-	 * Convert snake_case to TitleCase
-	 * @param {string} str
-	 */
-	function toTitleCase(str) {
-		return str
-			.toLowerCase()
-			.split('_')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ');
-	}
+	const modalStore = getModalStore();
 
 	const stateToComponent = {
 		[ROUND_STATES.SELECTING]: Selecting,
@@ -34,30 +32,35 @@
 
 	const username = localStorage.getItem('username') || '';
 	$: userIsDasher = isDasher(username);
-	$: role = $userIsDasher ? 'the dasher' : 'a guesser';
-
-    onMount(() => {
-		if ($userIsDasher) {
-            applyAction({type: 'error', error: { message: 'server error' }})
-        }
-    })
+	function removePlayer() {
+		modalStore.trigger({ type: 'component', component: 'kick' });
+	}
 </script>
 
 <div>
 	<h1 class="h1 text-center mb-5">Round {$currentRound} of {$roundLimit}</h1>
-	<ol class="breadcrumb text-xs">
-		{#each Object.keys(ROUND_STATES) as possibleState, index}
-			<li class:highlighted={possibleState === $currentRoundState}>{toTitleCase(possibleState)}</li>
-			{#if index !== Object.keys(ROUND_STATES).length - 1}
-				<li class="text-secondary-500">→</li>
+	<div class="flex justify-between items-center text-xs max-w-xs sm:max-w-lg mx-auto">
+		{#each Object.keys(ROUND_STATES).filter((s) => s !== ROUND_STATES.UNKNOWN) as possibleState, index}
+			<span class="hidden md:inline" class:highlighted={possibleState === $currentRoundState}>
+				{toTitleCase(possibleState)}
+			</span>
+			{#if index !== Object.keys(ROUND_STATES).length - 2}
+				<span class="hidden md:inline text-secondary-500">&rsaquo;</span>
 			{/if}
 		{/each}
-	</ol>
-	<div class="flex items-center justify-center">
-		<div class="role-chip py-1 px-2 my-5 rounded-lg">You ({username}) are {role}</div>
 	</div>
-	<h2 class="h2 text-center">{toTitleCase($currentRoundState)}</h2>
+	<h2 class="h2 text-center py-5">Stage: {toTitleCase($currentRoundState)}</h2>
 	<svelte:component this={stateToComponent[$currentRoundState]} userIsDasher={$userIsDasher} />
+	<div class="flex flex-col items-center justify-center">
+		<div class="role-chip py-1 px-2 my-5 rounded-lg">
+			Player {$currentRoundDasher}{$userIsDasher ? ' (you)' : ''} is the dasher
+		</div>
+		{#if $sessionPlayers.length > config.minPlayersRequired}
+			<button class="btn btn-sm variant-ringed mb-5" type="button" on:click={removePlayer}>
+				Remove player
+			</button>
+		{/if}
+	</div>
 </div>
 
 <style>

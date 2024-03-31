@@ -6,7 +6,7 @@
  * @typedef {'SELECTING'|'GUESSING'|'MARKING'|'VOTING'|'REVEALING'|'TALLYING'|'UNKNOWN'} RoundState
  *
  * Available categories
- * @typedef {'Rare words'|'Acronyms'|'Scientific names'|'Film taglines'|'Famous people'} Category
+ * @typedef {'Rare words'|'Scientific names'|'Film taglines'|'Famous people'} Category
  *
  * Session data structure
  * @typedef {Object} Session
@@ -18,12 +18,15 @@
  * @property {Category[]} categories - Categories included
  * @property {Scoreboard} scoreboard - A mapping between players and their most recent scores
  * @property {Object.<number, Round>} rounds - Round data
+ * @property {Object.<string, string>} kicked - Kicked players: kicked as key and kicker as value
  *
  * Round data structure
  * @typedef {Object} Round
  * @property {string} dasher - Username of the dasher for that round
  * @property {string} prompt - prompt
  * @property {string} response - response to the prompt
+ * @property {boolean} isCustomPrompt - whether the prompt is custom
+ * @property {number} timer - timer in seconds to guess the prompt
  * @property {RoundState} state - Current state of the round
  * @property {Category} category - category for the round
  * @property {Array<Guess>} guesses - guesses made by players
@@ -40,6 +43,9 @@
  * @typedef {Object.<string, number>} Scoreboard
  */
 
+/**
+ * @type {Object.<string, SessionState>}
+ */
 export const SESSION_STATES = {
 	INITIATED: 'INITIATED',
 	STARTED: 'STARTED',
@@ -47,6 +53,9 @@ export const SESSION_STATES = {
 	UNKNOWN: 'UNKNOWN'
 };
 
+/**
+ * @type {Object.<string, RoundState>}
+ */
 export const ROUND_STATES = {
 	SELECTING: 'SELECTING',
 	GUESSING: 'GUESSING',

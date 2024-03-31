@@ -9,7 +9,7 @@
 	import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
 	import { createSession, handleSessionJoinOutcome } from '$lib/session';
 	import { config } from '$lib/config';
-	import EntryForm from '../../components/EntryForm.svelte';
+	import Entry from '../../components/Entry.svelte';
 
 	const toastStore = getToastStore();
 	let username = '';
@@ -29,7 +29,7 @@
 			username,
 			roundsChoice,
 			aiChoice,
-			/** @type {Category[]} */ (selectedCategories)
+			/** @type {Category[]} */ (selectedCategories),
 		);
 		handleSessionJoinOutcome(outcome, username, toastStore);
 	};
@@ -38,13 +38,12 @@
 <main>
 	<!-- New Game heading -->
 	<h1 class="h1 text-center">New Game</h1>
-	<span class="inline-flex small-gap gap-x-1 items-center justify-center w-full">
+	<span class="inline-flex small-gap gap-x-1 items-center justify-center w-full text-xs xs:text-lg">
 		<span class="text-lg"><Fa icon={faCircleExclamation} /></span>
-		<span
-			>Make sure you are familiar with the <span class="attention">rules</span> before you start!</span
+		<span>Familiarise yourself with the <span class="attention">rules</span> before you start!</span
 		>
 	</span>
-	<EntryForm bind:username onSubmit={submitHandler}>
+	<Entry bind:username onSubmit={submitHandler}>
 		<!-- Target rounds -->
 		<div class="small-gap">
 			<RangeSlider
@@ -76,20 +75,24 @@
 					<div class="text-xs">{aiChoice} / {config.aiGuesses.max}</div>
 				</div>
 			</RangeSlider>
-			<p>You can add phony AI answers to make the game more fun</p>
+			<p>You can add phony AI answers</p>
 		</div>
 		<!-- Categories to include selection -->
 		<div class="small-gap">
 			<div class="font-bold">Categories To Include</div>
 			<div class="small-gap">
 				{#each categories as category}
-					<SlideToggle name="slider-{textToId(category.name)}" bind:checked={category.enabled}>
-						<span class="inline-block text-left">
+					<SlideToggle
+						size="sm"
+						name="slider-{textToId(category.name)}"
+						bind:checked={category.enabled}
+					>
+						<span class="inline-block text-left text-xs xs:text-base">
 							<span class="text-primary-500">{category.name}</span>: {category.description}
 						</span>
 					</SlideToggle>
 				{/each}
 			</div>
 		</div>
-	</EntryForm>
+	</Entry>
 </main>

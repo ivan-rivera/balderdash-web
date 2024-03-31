@@ -1,16 +1,16 @@
-import fs from 'fs';
-import path from 'path';
+/**
+ * @typedef {import("./types.js").Category} Category
+ */
+
 import { config } from './config.js';
 
 /**
  * Load vocabulary for a given category
  * @param {string} source - source of the category
- * @returns {Object.<string, string>} - a prompt and its response
+ * @returns {Promise<Object.<string, string>>} - a prompt and its response
  */
-function loadVocab(source) {
-	const filePath = path.resolve('static/dev', source);
-	const content = fs.readFileSync(filePath, 'utf-8');
-	return JSON.parse(content);
+async function loadVocab(source) {
+	return await (await fetch(source)).json();
 }
 
 /**
@@ -36,20 +36,25 @@ export function getPhonyResponse(vocab, truePrompt) {
 	return prompt === truePrompt ? getPhonyResponse(vocab, response) : response;
 }
 
-export function loadVocabs() {
-	return config.categories.map((category) => {
+/**
+ * Get vocabularies for each category
+ * @returns {Promise<Object.<Category, Object.<string, string>>[]>}
+ */
+export async function loadVocabs() {
+	const vocabPromises = config.categories.map(async (category) => {
 		return {
 			category: category.name,
-			vocab: loadVocab(category.source)
+			vocab: await loadVocab(category.source),
 		};
 	});
+	return Promise.all(vocabPromises);
 }
 
 /**
  * Category names and their vocabularies
  */
-export let vocabs = loadVocabs();
+export let vocabs = await loadVocabs();
 
-export function refreshVocabs() {
-	vocabs = loadVocabs();
+export async function refreshVocabs() {
+	vocabs = await loadVocabs();
 }

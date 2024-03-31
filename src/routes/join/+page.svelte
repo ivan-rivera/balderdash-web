@@ -1,11 +1,12 @@
 <script>
 	import { handleSessionJoinOutcome, joinSession } from '$lib/session';
-	import EntryForm from '../../components/EntryForm.svelte';
+	import Entry from '../../components/Entry.svelte';
 	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { page } from '$app/stores';
 
 	const toastStore = getToastStore();
 	let username = '';
-	let sessionId = '';
+	let sessionId = $page.url.searchParams.get('id') || '';
 	let submitHandler = async () => {
 		const outcome = await joinSession(sessionId, username);
 		handleSessionJoinOutcome(outcome, username, toastStore);
@@ -14,7 +15,7 @@
 
 <main>
 	<h1 class="h1 text-center pb-10">Join Game</h1>
-	<EntryForm onSubmit={submitHandler} bind:username>
+	<Entry onSubmit={submitHandler} bind:username>
 		<label class="label">
 			<div class="font-bold small-gap">Session ID</div>
 			<input
@@ -27,5 +28,5 @@
 			/>
 		</label>
 		<br class="pb-5" />
-	</EntryForm>
+	</Entry>
 </main>

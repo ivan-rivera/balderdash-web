@@ -1,5 +1,4 @@
 <script>
-	// TODO: pass validation message from using component
 	import { config } from '$lib/config';
 	import { getButtonVariant } from '$lib/utils';
 	import { goto } from '$app/navigation';
@@ -32,7 +31,7 @@
 		/>
 		{#if !isValidUsername}
 			<p class="text-sm italic text-tertiary-700">
-				You can choose up to {config.maxUsernameLength} letters (must start with one), numbers and dashes
+				{config.maxUsernameLength} letters (must start with it), numbers and dashes
 			</p>
 		{/if}
 	</label>

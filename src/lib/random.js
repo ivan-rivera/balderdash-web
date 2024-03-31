@@ -18,7 +18,7 @@ export function generateSessionId(
 /**
  * Retrieve a random character from a string of characters
  * @param {string} array - an array of strings
- * @returns string - a random string from the array
+ * @returns {string} - a random string from the array
  */
 function generateRandomIndex(array = letters) {
 	const index = Math.floor(Math.random() * array.length);
