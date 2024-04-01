@@ -7,22 +7,23 @@
 
 // TODO: write unit tests
 // TODO: see if you can mock Firebase DB somehow
-import { generateSessionId } from './random.js';
+import { generateSessionId } from '$lib/utils.js';
 import {
+	ROUND_STATES,
+	SESSION_STATES,
+	SessionJoinOutcome,
 	DatabaseError,
 	GenericError,
-	ROUND_STATES,
 	SessionDoesNotExistError,
 	SessionHasStartedError,
 	UsernameExistsError,
-} from './types.js';
-import { SESSION_STATES, SessionJoinOutcome } from './types.js';
-import { db } from './firebase.js';
+} from '$lib/types.js';
+import { db } from '$lib/config.js';
 import { ref, set, child, get, onValue, update, increment, remove } from 'firebase/database';
 import { get as getStore } from 'svelte/store';
-import { config } from './config.js';
+import { config } from '$lib/config.js';
 import { goto } from '$app/navigation';
-import { sessionData } from './store.js';
+import { sessionData } from '$lib/store.js';
 
 const sessions = ref(db, 'sessions');
 
@@ -130,7 +131,7 @@ export async function startNewRound(id) {
 		const content = getStore(sessionData);
 		if (!content) throw new GenericError('Session data not found');
 		const players = Object.keys(content.scoreboard);
-		const nextRound = Object.keys(content.rounds || {}).length + 1;
+		const nextRound = content.currentRound + 1;
 		const nextCategory = content.categories[Math.floor(Math.random() * content.categories.length)];
 		const encodedCategory = encodeURIComponent(nextCategory);
 		const response = await fetch(`/prompt?category=${encodedCategory}`);
@@ -244,7 +245,7 @@ export async function removePlayer(id, kicker, kicked) {
 		await remove(child(sessions, `${id}/rounds/${content.currentRound}`));
 		await update(child(sessions, id), { kicked: { [kicked]: kicker } });
 		await update(child(sessions, id), { currentRound: increment(-1) });
-		sessionData.set(await getSessionFromDb(id))
+		sessionData.set(await getSessionFromDb(id));
 		await startNewRound(id);
 	} catch (error) {
 		throw new DatabaseError(`Failed to remove player: ${error}`);
@@ -288,7 +289,7 @@ export function handleSessionJoinOutcome(outcome, username, store) {
 	if (outcome.error != null) {
 		store.trigger({
 			message: outcome.error.message,
-			timeout: config.errorTimeout,
+			timeout: config.toastTimeout,
 			background: 'variant-filled-error',
 		});
 	} else if (outcome.sessionId != null) {

@@ -1,6 +1,6 @@
 /**
  * Possible session states
- * @typedef {'INITIATED'|'STARTED'|'FINISHED'|'UNKNOWN'} SessionState
+ * @typedef {'INITIATED'|'STARTED'|'FINISHED'|'LOADING'|'UNKNOWN'} SessionState
  *
  * Possible round states
  * @typedef {'SELECTING'|'GUESSING'|'MARKING'|'VOTING'|'REVEALING'|'TALLYING'|'UNKNOWN'} RoundState
@@ -50,6 +50,7 @@ export const SESSION_STATES = {
 	INITIATED: 'INITIATED',
 	STARTED: 'STARTED',
 	FINISHED: 'FINISHED',
+	LOADING: 'LOADING',
 	UNKNOWN: 'UNKNOWN'
 };
 

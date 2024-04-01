@@ -32,7 +32,7 @@
 		let errorMessage = /** @type {GenericError} */ (error).message ?? JSON.stringify(error);
 		toastStore.trigger({
 			message: errorMessage,
-			timeout: config.errorTimeout,
+			timeout: config.toastTimeout,
 			background: 'variant-filled-error',
 		});
 	}
@@ -52,7 +52,7 @@
 				await navigator.clipboard.writeText(invitationTextAndUrl);
 				toastStore.trigger({
 					message: 'Invitation copied to clipboard!',
-					timeout: config.errorTimeout,
+					timeout: config.toastTimeout,
 					background: 'variant-filled-success',
 				});
 			} catch (error) {

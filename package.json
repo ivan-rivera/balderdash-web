@@ -57,6 +57,7 @@
     "install": "^0.13.0",
     "start-server-and-test": "^2.0.3",
     "svelte-fa": "^4.0.2",
+    "svelte-loading-spinners": "^0.3.4",
     "svelte-markdown": "^0.4.1",
     "svelte-preprocess": "^5.1.3"
   },

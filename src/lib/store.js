@@ -11,8 +11,13 @@ export const sessionData = writable(undefined);
 
 // Session details
 export const roundLimit = derived(sessionData, ($data) => ($data ? $data.roundLimit : 0));
+
 export const sessionState = derived(sessionData, ($data) =>
-	$data ? $data.state : SESSION_STATES.UNKNOWN,
+	$data === undefined || $data === null
+		? SESSION_STATES.LOADING
+		: $data.state
+			? $data.state
+			: SESSION_STATES.UNKNOWN,
 );
 export const sessionHost = derived(sessionData, ($data) => ($data ? $data.creator : ''));
 export const sessionAiGuesses = derived(sessionData, ($data) => ($data ? $data.aiGuesses : 0));
@@ -34,15 +39,15 @@ export const currentRoundState = derived(currentRoundData, ($round) => {
 });
 
 export const currentRoundPrompt = derived(currentRoundData, ($round) => {
-    return $round ? /** @type {Round} */ ($round).prompt : '';
+	return $round ? /** @type {Round} */ ($round).prompt : '';
 });
 
 export const currentRoundResponse = derived(currentRoundData, ($round) => {
-    return $round ? /** @type {Round} */ ($round).response : '';
+	return $round ? /** @type {Round} */ ($round).response : '';
 });
 
 export const currentRoundCategory = derived(currentRoundData, ($round) => {
-    return $round ? /** @type {Round} */ ($round).category : '';
+	return $round ? /** @type {Round} */ ($round).category : '';
 });
 
 export const currentRoundDasher = derived(currentRoundData, ($round) => {

@@ -10,6 +10,7 @@
 	import Outsider from '../../components/Outsider.svelte';
 	import Kicked from '../../components/Kicked.svelte';
 	import Empty from '../../components/Empty.svelte';
+	import Loading from '../../components/Loading.svelte';
 
 	let username = '';
 	onMount(async () => {
@@ -20,21 +21,20 @@
 	$: playerIsInSession = $sessionPlayers.includes(username);
 	$: playerWasKicked = Object.keys($kickedRegistry ?? {}).includes(username);
 	$: playerState =
-		$sessionState == SESSION_STATES.UNKNOWN
-			? SESSION_STATES.UNKNOWN
-			: playerIsInSession
-				? $sessionState
-				: playerWasKicked
-					? 'KICKED'
-					: 'OUTSIDER';
+		[SESSION_STATES.UNKNOWN, SESSION_STATES.LOADING].includes($sessionState) || playerIsInSession
+			? $sessionState
+			: playerWasKicked
+				? 'KICKED'
+				: 'OUTSIDER';
 
 	const stateToComponent = {
 		[SESSION_STATES.INITIATED]: Lobby,
 		[SESSION_STATES.STARTED]: Game,
 		[SESSION_STATES.FINISHED]: Summary,
+		[SESSION_STATES.LOADING]: Loading,
 		[SESSION_STATES.UNKNOWN]: Empty,
 		OUTSIDER: Outsider,
-		KICKED: Kicked, // TODO: tidy it up & test
+		KICKED: Kicked,
 	};
 </script>
 
