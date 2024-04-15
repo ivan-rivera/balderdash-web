@@ -1,300 +1,182 @@
 /**
- * @typedef {import("./types.js").Session} Session
- * @typedef {import("./types.js").RoundState} RoundState
- * @typedef {import("./types.js").Category} Category
+ * @typedef {import("$lib/types").Session} Session
+ * @typedef {import("$lib/types").Round} Round
+ * @typedef {import("$lib/types").SessionState} SessionState
+ * @typedef {import("$lib/types").RoundState} RoundState
+ * @typedef {import("$lib/types").Category} Category
  * @typedef {import("@skeletonlabs/skeleton").ToastStore} ToastStore
+ * @typedef {import("firebase/database").DatabaseReference} DatabaseReference
  */
 
-// TODO: write unit tests
-// TODO: see if you can mock Firebase DB somehow
-import { generateSessionId } from '$lib/utils.js';
+import { config } from '$lib/config';
 import {
+	DEFAULT_CUSTOM_PROMPT,
 	ROUND_STATES,
+	ROUNDS,
+	SCOREBOARD,
 	SESSION_STATES,
-	SessionJoinOutcome,
-	DatabaseError,
-	GenericError,
-	SessionDoesNotExistError,
-	SessionHasStartedError,
-	UsernameExistsError,
-} from '$lib/types.js';
-import { db } from '$lib/config.js';
-import { ref, set, child, get, onValue, update, increment, remove } from 'firebase/database';
-import { get as getStore } from 'svelte/store';
-import { config } from '$lib/config.js';
-import { goto } from '$app/navigation';
-import { sessionData } from '$lib/store.js';
-
-const sessions = ref(db, 'sessions');
+} from '$lib/constants';
+import DatabaseManager from '$lib/database';
+import { DatabaseError } from '$lib/errors';
+import { child, increment, onValue, update } from 'firebase/database';
 
 /**
- * Sync session data across all users
- * @param {string} id - session ID
- * @param {function(Session): void} setter - a setter function
- * @returns {Promise<void>}
+ * Session management class
  */
-export async function syncSession(id, setter) {
-	onValue(child(sessions, id), (snapshot) => setter(snapshot.val()));
-}
+export class SessionManager {
+	/** @type {Session} */ session;
+	/** @type {string} */ id;
+	/** @type {DatabaseManager} */ #db;
 
-/**
- * Retrieve session data from DB
- * @param {string} id - session ID
- * @returns {Promise<Session>} - session data
- */
-export async function getSessionFromDb(id) {
-	const ref = child(sessions, id);
-	const snapshot = await get(ref);
-	return snapshot.val();
-}
+	/**
+	 * @param {Session} session - session data
+	 * @param {string} id - session ID
+	 * @param {DatabaseManager} db - database manager
+	 */
+	constructor(session, id, db) {
+		this.#db = db;
+		this.id = id;
+		this.session = session;
+	}
 
-/**
- * Create a new session ID and join the game
- * @param {string} creator - username of the creator
- * @param {number} rounds - round limit
- * @param {number} aiGuesses - number of AI guesses
- * @param {Array<Category>} categories - categories to include
- * @returns {Promise<SessionJoinOutcome>} - session outcome
- * @throws {GenericError}
- */
-export async function createSession(creator, rounds, aiGuesses, categories) {
-	const sessionId = await createNewSessionId();
-	const initialState = {
-		state: SESSION_STATES.INITIATED,
-		creator,
-		roundLimit: rounds,
-		currentRound: 0,
-		aiGuesses,
-		categories,
-	};
-	return set(child(sessions, sessionId), initialState)
-		.then(() => joinSession(sessionId, creator))
-		.catch(
-			(errorMessage) =>
-				new SessionJoinOutcome(
-					null,
-					new GenericError(`failed to create session: ${JSON.stringify(errorMessage)}`),
-				),
-		);
-}
+	/**
+	 * Sync session across users
+	 * @param {function(SessionManager): void} setter - session setter function
+	 * @returns {Promise<void>}
+	 */
+	async sync(setter) {
+		onValue(this.ref, (snapshot) => setter(new SessionManager(snapshot.val(), this.id, this.#db)));
+	}
 
-/**
- * Join session
- * @param {string} id
- * @param {string} username
- * @returns {Promise<SessionJoinOutcome>} - session outcome
- * @throws {GenericError | GenericError}
- */
-export async function joinSession(id, username) {
-	const session = await getSessionFromDb(id);
-	const players = (await session.hasOwnProperty('scoreboard'))
-		? Object.keys(session.scoreboard)
-		: [];
-	if (!(await sessionIdExists(id)))
-		return new SessionJoinOutcome(null, new SessionDoesNotExistError());
-	if (players.includes(username)) return new SessionJoinOutcome(null, new UsernameExistsError());
-	if (session.state != SESSION_STATES.INITIATED)
-		return new SessionJoinOutcome(null, new SessionHasStartedError());
-	const ref = child(sessions, id);
-	return set(child(ref, `scoreboard/${username}`), 0)
-		.then(() => new SessionJoinOutcome(id))
-		.catch(
-			(errorMessage) =>
-				new SessionJoinOutcome(
-					null,
-					new GenericError(`failed to join a session: ${JSON.stringify(errorMessage)}`),
-				),
-		);
-}
+	/**
+	 * Launch a new round
+	 * @returns {Promise<void>}
+	 */
+	async launch() {
+		const randomCategory = this.randomCategory;
+		const payload = await this.#getNextRoundPayload();
+		const nextRound = `${ROUNDS}/${this.session.current + 1}`;
+		await update(this.ref, {
+			state: SESSION_STATES.STARTED,
+			current: increment(1),
+			[nextRound]: payload,
+		});
+	}
 
-/**
- * Begin the game
- * @param {string} id - session ID
- * @returns {Promise<void>}
- * @throws {DatabaseError}
- */
-export async function launchGame(id) {
-	const ref = child(sessions, id);
-	await set(child(ref, 'state'), SESSION_STATES.STARTED)
-		.then(() => startNewRound(id))
-		.catch((errorMessage) => new DatabaseError(errorMessage));
-}
+	/**
+	 * Update round timer
+	 * @param {number} time - time in seconds
+	 */
+	async updateTimer(time) {
+		await update(this.#roundRef, { timer: time });
+	}
 
-/**
- * Begin a new round
- * @param {string} id - session ID
- * @returns {Promise<void>}
- * @throws {DatabaseError | GenericError}
- */
-export async function startNewRound(id) {
-	try {
-		const content = getStore(sessionData);
-		if (!content) throw new GenericError('Session data not found');
-		const players = Object.keys(content.scoreboard);
-		const nextRound = content.currentRound + 1;
-		const nextCategory = content.categories[Math.floor(Math.random() * content.categories.length)];
-		const encodedCategory = encodeURIComponent(nextCategory);
-		const response = await fetch(`/prompt?category=${encodedCategory}`);
+	/**
+	 * Update round state
+	 * @param {RoundState} state - new round state
+	 */
+	async updateState(state) {
+		await update(this.#roundRef, { state });
+	}
+
+	/**
+	 * Set prompt and response to new random values
+	 */
+	async setRandomPrompt() {
+		const randomCategory = this.randomCategory;
+		const response = await fetch(`/prompt?category=${encodeURIComponent(randomCategory)}`);
 		const data = await response.json();
-		await update(child(sessions, id), { currentRound: increment(1) });
-		await set(child(sessions, `${id}/rounds/${nextRound}`), {
-			dasher: players[(nextRound % players.length) - 1],
+		await update(this.#roundRef, {
 			prompt: data.prompt,
 			response: data.response,
-			category: nextCategory,
-			isCustomPrompt: false,
+			category: randomCategory,
+			custom: false,
+		});
+	}
+
+	/**
+	 * Set a custom prompt
+	 * @param {string} prompt - prompt
+	 * @param {string} response - response to the prompt
+	 * @param {Category} category - category
+	 */
+	async setCustomPrompt(prompt, response, category) {
+		await update(this.#roundRef, { prompt, response, category, custom: true });
+	}
+
+	/**
+	 * Remove a player from the session
+	 * @param {string} kicker - player who is performing the action
+	 * @param {string} kicked - player who is getting removed
+	 */
+	async kick(kicker, kicked) {
+		if (!this.players.includes(kicked)) throw new DatabaseError('Player to be kicked not found');
+		if (!this.players.includes(kicker)) throw new DatabaseError('Kicker not found');
+		const payload = await this.#getNextRoundPayload();
+		await update(this.ref, {
+			kicked: { [kicked]: kicker },
+			[`${SCOREBOARD}/${kicked}`]: null,
+			[`${ROUNDS}/${this.session.current}`]: { ...payload, dasher: this.#getDasher([kicked]) },
+		});
+	}
+
+	/** @returns {string[]} - players in the session */
+	get players() {
+		return Object.keys(this.session.scoreboard) ?? [];
+	}
+
+	/** @returns {DatabaseReference} - session reference */
+	get ref() {
+		return this.#db.getSessionRef(this.id);
+	}
+
+	/** @returns {SessionState} - session state */
+	get state() {
+		return this.session.state;
+	}
+
+	/** @returns {Round} - current round state */
+	get round() {
+		return this.session.rounds[this.session.current];
+	}
+
+	/** @returns {Category} */
+	get randomCategory() {
+		return this.session.categories[Math.floor(Math.random() * this.session.categories.length)];
+	}
+
+	/** @returns {DatabaseReference} - round reference */
+	get #roundRef() {
+		return child(this.ref, `${ROUNDS}/${this.session.current}`);
+	}
+
+	/**
+	 * Get next dasher
+	 * @param {string[]} excluded - an array of excluded users (optional)
+	 * @returns {string} - dasher username
+	 */
+	#getDasher(excluded = []) {
+		const subset = this.players.filter((player) => !excluded.includes(player));
+		return subset[this.session.current % subset.length];
+	}
+
+	/**
+	 * Get a round payload
+	 * @returns {Promise<Round>}
+	 */
+	async #getNextRoundPayload() {
+		const randomCategory = this.randomCategory;
+		const response = await fetch(`/prompt?category=${encodeURIComponent(randomCategory)}`);
+		const data = await response.json();
+		return {
+			dasher: this.#getDasher(),
+			prompt: data.prompt,
+			response: data.response,
+			category: randomCategory,
+			custom: DEFAULT_CUSTOM_PROMPT,
 			state: ROUND_STATES.SELECTING,
 			timer: config.timer.default,
-		});
-	} catch (error) {
-		throw new DatabaseError(`Failed to start a new round: ${error}`);
-	}
-}
-
-/**
- * Update prompt, response and category
- * @param {string} id - Session ID
- * @return {Promise<void>}
- * @throws {GenericError}
- */
-export async function updateRoundPrompt(id) {
-	const content = getStore(sessionData);
-	if (!content) throw new GenericError('Session data not found');
-	const nextCategory = content.categories[Math.floor(Math.random() * content.categories.length)];
-	const encodedCategory = encodeURIComponent(nextCategory);
-	const response = await fetch(`/prompt?category=${encodedCategory}`);
-	const data = await response.json();
-	await update(child(sessions, `${id}/rounds/${content.currentRound}`), {
-		prompt: data.prompt,
-		response: data.response,
-		category: nextCategory,
-		isCustomPrompt: false,
-	});
-}
-
-/**
- * Set a custom prompt
- * @param {string} id - Session ID
- * @param {number} round - round number
- * @param {string} prompt - prompt
- * @param {string} response - response to the prompt
- * @param {Category} category - category of the prompt
- * @returns {Promise<void>}
- * @throws {DatabaseError}
- */
-export async function setCustomRoundPrompt(id, round, prompt, response, category) {
-	try {
-		await update(child(sessions, `${id}/rounds/${round}`), {
-			prompt,
-			response,
-			category,
-			isCustomPrompt: true,
-		});
-	} catch (error) {
-		throw new DatabaseError(`Failed to set custom prompt: ${error}`);
-	}
-}
-
-/**
- * Update round timer
- * @param {string} id - Session ID
- * @param {number} round - round number
- * @param {number} time - time in seconds to complete the round
- * @returns {Promise<void>}
- * @throws {DatabaseError}
- */
-export async function updateRoundTimer(id, round, time) {
-	try {
-		await update(child(sessions, `${id}/rounds/${round}`), { timer: time });
-	} catch (error) {
-		throw new DatabaseError(`Failed to update round timer: ${error}`);
-	}
-}
-
-/**
- * initiate round state
- * @param {string} id - session ID
- * @param {number} round - round number
- * @param {RoundState} newState - new round state
- * @returns {Promise<void>}
- * @throws {DatabaseError}
- */
-export async function initiateRoundState(id, round, newState) {
-	try {
-		await update(child(sessions, `${id}/rounds/${round}`), { state: newState });
-	} catch (error) {
-		throw new DatabaseError(`Failed to initiate state ${newState} due to error: ${error}`);
-	}
-}
-
-/**
- * Remove a player from a session. This action restarts the current round
- * @param {string} id - Session ID
- * @param {string} kicker - username who removed the player
- * @param {string} kicked - username to remove
- * @returns {Promise<void>}
- * @throws {DatabaseError | GenericError}
- */
-export async function removePlayer(id, kicker, kicked) {
-	const content = getStore(sessionData);
-	if (!content) throw new GenericError('Session data not found');
-	const players = Object.keys(content.scoreboard);
-	if (!players.includes(kicked)) throw new GenericError('Player not found');
-	try {
-		await remove(child(sessions, `${id}/scoreboard/${kicked}`));
-		await remove(child(sessions, `${id}/rounds/${content.currentRound}`));
-		await update(child(sessions, id), { kicked: { [kicked]: kicker } });
-		await update(child(sessions, id), { currentRound: increment(-1) });
-		sessionData.set(await getSessionFromDb(id));
-		await startNewRound(id);
-	} catch (error) {
-		throw new DatabaseError(`Failed to remove player: ${error}`);
-	}
-}
-
-/**
- * Create unique session ID
- * @returns {Promise<string>} - session ID
- */
-async function createNewSessionId() {
-	const id = generateSessionId();
-	const sessionExists = await sessionIdExists(id);
-	if (sessionExists) return createNewSessionId();
-	else return id;
-}
-
-/**
- * Check whether a session ID exists
- * @param {string} id - session ID to verify
- * @returns {Promise<boolean>} - true if session ID exists
- * @throws {Error} - failure to check session ID
- */
-async function sessionIdExists(id) {
-	return get(child(sessions, id))
-		.then((snapshot) => snapshot.exists())
-		.catch((error) => {
-			console.log(`session ID check failed with error: ${error}`);
-			return false;
-		});
-}
-
-/**
- * Process outcome of joining a session by either displaying an error or redirecting to the session
- * @param {SessionJoinOutcome} outcome - outcome of joining a session
- * @param {ToastStore} store - toast store
- * @param {string} username - username of the player
- * @returns {void}
- */
-export function handleSessionJoinOutcome(outcome, username, store) {
-	if (outcome.error != null) {
-		store.trigger({
-			message: outcome.error.message,
-			timeout: config.toastTimeout,
-			background: 'variant-filled-error',
-		});
-	} else if (outcome.sessionId != null) {
-		localStorage.setItem('username', username);
-		localStorage.setItem('sessionId', outcome.sessionId);
-		goto(`/${outcome.sessionId}`);
+			guesses: [],
+		};
 	}
 }

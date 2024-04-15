@@ -1,8 +1,8 @@
 /**
- * @typedef {import("./types.js").Category} Category
+ * @typedef {import("$lib/types").Category} Category
  */
 
-import { config } from './config.js';
+import { config } from '$lib/config';
 
 /**
  * Load vocabulary for a given category

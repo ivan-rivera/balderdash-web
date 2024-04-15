@@ -38,6 +38,8 @@ You can preview the production build with `npm run preview`.
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 Todo items:
+- Upgrade Firebase to Blaze
+- Firebase security rules
 - Add another sub-state to dasher marking: grouping stage where dasher groups similar phony responses
 - Add double-bluff logic: guessers can opt for a double bluff, if no one votes for them or if their answer is correct, they get minus 3 points, but if someone does vote for them, each vote counts for 2
 - Add a scoreboard to footer (look for appropriate progress bars)

@@ -1,25 +1,19 @@
 <script>
-	// TODO: add kick player logic
-	import {
-		roundLimit,
-		currentRound,
-		currentRoundState,
-		isDasher,
-		currentRoundDasher,
-		sessionPlayers,
-	} from '$lib/store.js';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import { ROUND_STATES } from '$lib/types';
+	import { session, round } from '$lib/store';
+	import { ROUND_STATES } from '$lib/constants';
+	import { toTitleCase } from '$lib/utils';
+	import { config } from '$lib/config';
 	import Selecting from './round/Selecting.svelte';
 	import Guessing from './round/Guessing.svelte';
 	import Marking from './round/Marking.svelte';
 	import Voting from './round/Voting.svelte';
 	import Revealing from './round/Revealing.svelte';
 	import Tallying from './round/Tallying.svelte';
-	import { toTitleCase } from '$lib/utils';
-	import { config } from '$lib/config';
 
 	const modalStore = getModalStore();
+	const { players, limit } = session;
+	const { dasher, number, state } = round;
 
 	const stateToComponent = {
 		[ROUND_STATES.SELECTING]: Selecting,
@@ -29,19 +23,19 @@
 		[ROUND_STATES.REVEALING]: Revealing,
 		[ROUND_STATES.TALLYING]: Tallying,
 	};
-
-	const username = localStorage.getItem('username') || '';
-	$: userIsDasher = isDasher(username);
 	function removePlayer() {
 		modalStore.trigger({ type: 'component', component: 'kick' });
 	}
+
+	let user = localStorage.getItem('username') || '';
+	$: userIsDasher = $dasher == user;
 </script>
 
 <div>
-	<h1 class="h1 text-center mb-5">Round {$currentRound} of {$roundLimit}</h1>
+	<h1 class="h1 text-center mb-5">Round {$number} of {$limit}</h1>
 	<div class="flex justify-between items-center text-xs max-w-xs sm:max-w-lg mx-auto">
 		{#each Object.keys(ROUND_STATES).filter((s) => s !== ROUND_STATES.UNKNOWN) as possibleState, index}
-			<span class="hidden md:inline" class:highlighted={possibleState === $currentRoundState}>
+			<span class="hidden md:inline" class:highlighted={possibleState === $state}>
 				{toTitleCase(possibleState)}
 			</span>
 			{#if index !== Object.keys(ROUND_STATES).length - 2}
@@ -49,13 +43,18 @@
 			{/if}
 		{/each}
 	</div>
-	<h2 class="h2 text-center py-5">Stage: {toTitleCase($currentRoundState)}</h2>
-	<svelte:component this={stateToComponent[$currentRoundState]} userIsDasher={$userIsDasher} />
+	{#if state !== undefined}
+		<h2 class="h2 text-center py-5">Stage: {toTitleCase($state)}</h2>
+	{/if}
+	<svelte:component this={stateToComponent[$state]} {userIsDasher} />
 	<div class="flex flex-col items-center justify-center">
 		<div class="role-chip py-1 px-2 my-5 rounded-lg">
-			Player {$currentRoundDasher}{$userIsDasher ? ' (you)' : ''} is the dasher
+			{$dasher}{userIsDasher ? ' (you)' : ''} is the dasher
 		</div>
-		{#if $sessionPlayers.length > config.minPlayersRequired}
+		<div class="italic text-sm mb-5">
+			Playing as {user}
+		</div>
+		{#if $players.length > config.minPlayersRequired}
 			<button class="btn btn-sm variant-ringed mb-5" type="button" on:click={removePlayer}>
 				Remove player
 			</button>

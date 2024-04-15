@@ -1,15 +1,32 @@
 <script>
-	import { handleSessionJoinOutcome, joinSession } from '$lib/session';
-	import Entry from '../../components/Entry.svelte';
-	import { getToastStore } from '@skeletonlabs/skeleton';
-	import { page } from '$app/stores';
+	/**
+	 * * @typedef {import('firebase/database').Database} Database
+	 */
 
+	import { page } from '$app/stores';
+	import { DB_MANAGER } from '$lib/constants';
+	import { DatabaseError, handleError } from '$lib/errors';
+	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { getContext } from 'svelte';
+	import Entry from '../../components/Entry.svelte';
+	import { goto } from '$app/navigation';
+	import DatabaseManager from '$lib/database';
+
+	/** @type {DatabaseManager} */
+	const db = getContext(DB_MANAGER);
 	const toastStore = getToastStore();
+
 	let username = '';
 	let sessionId = $page.url.searchParams.get('id') || '';
 	let submitHandler = async () => {
-		const outcome = await joinSession(sessionId, username);
-		handleSessionJoinOutcome(outcome, username, toastStore);
+		await db
+			.join(username, sessionId)
+			.then(() => {
+				localStorage.setItem('username', username);
+				localStorage.setItem('sessionId', sessionId);
+				goto(`/${sessionId}`);
+			})
+			.catch((error) => handleError(toastStore, new DatabaseError(error)));
 	};
 </script>
 

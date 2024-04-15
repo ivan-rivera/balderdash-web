@@ -1,37 +1,44 @@
 <script>
 	/**
-	 * @typedef {import("../../lib/types.js").Category} Category
+	 * @typedef {import('firebase/database').DatabaseReference} DatabaseReference
+	 * @typedef {import("$lib/types").Category} Category
 	 */
 
-	import Fa from 'svelte-fa';
-	import { getToastStore } from '@skeletonlabs/skeleton';
-	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
-	import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
-	import { createSession, handleSessionJoinOutcome } from '$lib/session';
+	import { goto } from '$app/navigation';
 	import { config } from '$lib/config';
+	import { DB_MANAGER } from '$lib/constants';
+	import DatabaseManager from '$lib/database';
+	import { DatabaseError, handleError } from '$lib/errors';
+	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+	import { getToastStore, RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
+	import { getContext } from 'svelte';
+	import Fa from 'svelte-fa';
 	import Entry from '../../components/Entry.svelte';
 
+	/** @type {DatabaseManager} */
+	const db = getContext(DB_MANAGER);
 	const toastStore = getToastStore();
+
 	let username = '';
 	let categories = config.categories;
 	let roundsChoice = config.rounds.min;
-	let aiChoice = config.aiGuesses.min;
+	let aiChoice = config.ais.min;
 
 	$: selectedCategories = categories
 		.filter((category) => category.enabled)
-		.map((category) => category.name);
+		.map((category) => /** @type {Category} */ (category.name));
 
 	/** @param {string} text */
 	let textToId = (text) => text.toLowerCase().replace(/\s/g, '-');
 
 	let submitHandler = async () => {
-		const outcome = await createSession(
-			username,
-			roundsChoice,
-			aiChoice,
-			/** @type {Category[]} */ (selectedCategories),
-		);
-		handleSessionJoinOutcome(outcome, username, toastStore);
+		await db.create(username, roundsChoice, aiChoice, selectedCategories)
+			.then(async (sessionId) => {
+				localStorage.setItem('username', username);
+				localStorage.setItem('sessionId', sessionId);
+				goto(`/${sessionId}`);
+			})
+			.catch((error) => handleError(toastStore, new DatabaseError(error)));
 	};
 </script>
 
@@ -66,13 +73,13 @@
 			<RangeSlider
 				name="ai-slider"
 				bind:value={aiChoice}
-				max={config.aiGuesses.max}
+				max={config.ais.max}
 				step={1}
 				ticked
 			>
 				<div class="flex justify-between items-center">
 					<div class="font-bold">AI Guesses</div>
-					<div class="text-xs">{aiChoice} / {config.aiGuesses.max}</div>
+					<div class="text-xs">{aiChoice} / {config.ais.max}</div>
 				</div>
 			</RangeSlider>
 			<p>You can add phony AI answers</p>

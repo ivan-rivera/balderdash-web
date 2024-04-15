@@ -1,65 +1,39 @@
-/**
- * @typedef {import("./types.js").Session} Session
- * @typedef {import("./types.js").Round} Round
- * @typedef {import('svelte/store').Writable<Session|undefined>} WritableSession
- */
+import { INITIAL_SESSION_STATE, ROUND_STATES } from '$lib/constants';
 import { derived, writable } from 'svelte/store';
-import { ROUND_STATES, SESSION_STATES } from '$lib/types';
+import { SessionManager } from '$lib/session';
+import { firebaseApp } from '$lib/firebase/client';
+import DatabaseManager from '$lib/database';
+import { config } from '$lib/config';
 
-/** @type {WritableSession} */
-export const sessionData = writable(undefined);
+const dbManager = new DatabaseManager(firebaseApp);
+const sessionManager = new SessionManager(INITIAL_SESSION_STATE, '', dbManager);
 
-// Session details
-export const roundLimit = derived(sessionData, ($data) => ($data ? $data.roundLimit : 0));
-
-export const sessionState = derived(sessionData, ($data) =>
-	$data === undefined || $data === null
-		? SESSION_STATES.LOADING
-		: $data.state
-			? $data.state
-			: SESSION_STATES.UNKNOWN,
-);
-export const sessionHost = derived(sessionData, ($data) => ($data ? $data.creator : ''));
-export const sessionAiGuesses = derived(sessionData, ($data) => ($data ? $data.aiGuesses : 0));
-export const sessionPlayers = derived(sessionData, ($data) =>
-	$data ? Object.keys($data.scoreboard) : [],
-);
-export const sessionCategories = derived(sessionData, ($data) => ($data ? $data.categories : []));
-
-export const kickedRegistry = derived(sessionData, ($data) => ($data ? $data.kicked : {}));
-
-// Round details
-export const currentRound = derived(sessionData, ($data) => ($data ? $data.currentRound : 0));
-export const currentRoundData = derived(
-	[sessionData, currentRound],
-	([$data, $round]) => $data?.rounds?.[$round] ?? undefined,
-);
-export const currentRoundState = derived(currentRoundData, ($round) => {
-	return $round ? /** @type {Round} */ ($round).state : ROUND_STATES.UNKNOWN;
-});
-
-export const currentRoundPrompt = derived(currentRoundData, ($round) => {
-	return $round ? /** @type {Round} */ ($round).prompt : '';
-});
-
-export const currentRoundResponse = derived(currentRoundData, ($round) => {
-	return $round ? /** @type {Round} */ ($round).response : '';
-});
-
-export const currentRoundCategory = derived(currentRoundData, ($round) => {
-	return $round ? /** @type {Round} */ ($round).category : '';
-});
-
-export const currentRoundDasher = derived(currentRoundData, ($round) => {
-	return $round ? /** @type {Round} */ ($round).dasher : '';
-});
-
-/**
- * Check if a user is a dasher
- * @param {string} username
- */
-export function isDasher(username) {
-	return derived(currentRoundData, ($round) =>
-		$round ? /** @type {Round} */ ($round).dasher === username : false,
-	);
+export function getSessionManagerStore() {
+	const { subscribe, set } = writable(sessionManager);
+	return {
+		subscribe,
+		reset: () => set(sessionManager),
+		/** @param {SessionManager} sm */
+		set: (sm) => set(sm),
+	};
 }
+export const sessionManagerStore = getSessionManagerStore();
+
+export const session = {
+	state: derived(sessionManagerStore, ($sm) => $sm.session.state),
+	host: derived(sessionManagerStore, ($sm) => $sm.session.creator),
+	players: derived(sessionManagerStore, ($sm) => $sm.players),
+	limit: derived(sessionManagerStore, ($sm) => $sm.session.limit),
+	categories: derived(sessionManagerStore, ($sm) => $sm.session.categories),
+	ais: derived(sessionManagerStore, ($sm) => $sm.session.ais, config.ais.default),
+	kicked: derived(sessionManagerStore, ($sm) => $sm.session.kicked),
+};
+
+export const round = {
+	number: derived(sessionManagerStore, ($sm) => $sm.session.current),
+	state: derived(sessionManagerStore, ($sm) => $sm.round.state),
+	dasher: derived(sessionManagerStore, ($sm) => $sm.round.dasher),
+	category: derived(sessionManagerStore, ($sm) => $sm.round.category),
+	prompt: derived(sessionManagerStore, ($sm) => $sm.round.prompt),
+	response: derived(sessionManagerStore, ($sm) => $sm.round.response),
+};

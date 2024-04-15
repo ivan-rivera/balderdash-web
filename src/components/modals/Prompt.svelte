@@ -1,29 +1,23 @@
 <script>
 	/**
-	 * @typedef {import("../../lib/types.js").Category} Category
+	 * @typedef {import("$lib/types.js").Category} Category
 	 */
-	import { setCustomRoundPrompt } from '$lib/session';
-	import { sessionCategories, currentRound } from '$lib/store';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import { getButtonVariant } from '$lib/utils';
+	import { getButtonVariant, getCategoryWords, toTitleCase } from '$lib/utils';
+	import { session } from '$lib/store';
 	import { config } from '$lib/config';
-	import { getCategoryWords } from '$lib/utils';
-	import { toTitleCase } from '$lib/utils';
+	import { sessionManagerStore } from '$lib/store';
 
 	const modalStore = getModalStore();
-	let selectedCategory = $sessionCategories[0];
+	const { categories } = session;
+
+	let selectedCategory = $categories[0];
 	let customPrompt = '';
 	let customResponse = '';
-	let sessionId = localStorage.getItem('sessionId') || '';
 	let { prompt, response } = getCategoryWords(/** @type {Category} */ (selectedCategory));
 	async function submitCustomPrompt() {
-		await setCustomRoundPrompt(
-			sessionId,
-			$currentRound,
-			customPrompt,
-			customResponse,
-			selectedCategory,
-		);
+		// TODO: handle exceptions?
+		await $sessionManagerStore.setCustomPrompt(customPrompt, customResponse, selectedCategory);
 		modalStore.close();
 	}
 	$: submitButtonIsDisabled =
@@ -42,7 +36,7 @@
 	<label class="label">
 		<span class="text-lg">Category</span>
 		<select class="select" bind:value={selectedCategory}>
-			{#each $sessionCategories as category}
+			{#each $categories as category}
 				<option value={category}>{category}</option>
 			{/each}
 		</select>

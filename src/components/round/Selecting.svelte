@@ -1,40 +1,31 @@
 <script>
 	/**
-	 * @typedef {import("../../lib/types.js").Category} Category
+	 * @typedef {import("$lib/types").Category} Category
 	 */
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
-	import {
-		currentRound,
-		currentRoundPrompt,
-		currentRoundResponse,
-		currentRoundCategory,
-	} from '$lib/store';
+	import { round } from '$lib/store';
 	import { config } from '$lib/config';
-	import { initiateRoundState, updateRoundPrompt, updateRoundTimer } from '$lib/session';
 	import { getCategoryWords } from '$lib/utils';
-	import { ROUND_STATES } from '$lib/types';
+	import { ROUND_STATES } from '$lib/constants';
+	import { sessionManagerStore } from '$lib/store';
 
 	const modalStore = getModalStore();
+	const { category, prompt: roundPrompt, response: roundResponse } = round
 
 	export let userIsDasher = false;
-
-	let sessionId = localStorage.getItem('sessionId') || '';
-	$: ({ prompt, response } = getCategoryWords(/** @type {Category} */ ($currentRoundCategory)));
+	$: ({ prompt, response } = getCategoryWords($category));
 	let timer = config.timer.default;
-	function addTime() {
-		if (timer < config.timer.max) timer += config.timer.increment;
-	}
-	function subtractTime() {
-		if (timer > config.timer.min) timer -= config.timer.increment;
+	const timeControl = {
+		add: () => timer < config.timer.max && (timer += config.timer.increment),
+		subtract: () => timer > config.timer.min && (timer -= config.timer.increment),
 	}
 	async function acceptPrompt() {
-		await updateRoundTimer(sessionId, $currentRound, timer);
-		await initiateRoundState(sessionId, $currentRound, ROUND_STATES.GUESSING);
-	}
-	async function newPrompt() {
-		await updateRoundPrompt(sessionId);
+		// TODO: handle exceptions?
+		// TODO: unite these into a single call?
+		await $sessionManagerStore.updateTimer(timer);
+		await $sessionManagerStore.updateState(ROUND_STATES.GUESSING);
 	}
 	function customPrompt() {
 		modalStore.trigger({ type: 'component', component: 'prompt' });
@@ -49,9 +40,9 @@
 	{/if}
 </div>
 <div class="border-2 box-color rounded-lg py-2 text-center">
-	<h2 class="h2 py-2 text-primary-400">{$currentRoundPrompt}</h2>
+	<h2 class="h2 py-2 text-primary-400">{$roundPrompt}</h2>
 	{#if userIsDasher}
-		<h4 class="h4 italic pb-2 mx-2">{$currentRoundResponse}</h4>
+		<h4 class="h4 italic pb-2 mx-2">{$roundResponse}</h4>
 	{/if}
 	<span class="arranged small-gap text-xs">
 		<span><Fa icon={faCircleExclamation} /></span>
@@ -62,28 +53,28 @@
 		{:else}
 			<span>Only </span>
 			<span class="text-primary-400">dasher</span>
-			<span>can see the {response}</span>
+			<span>can see the {prompt}</span>
 		{/if}
 	</span>
 	<div class="border border-x-0 border-b-0 box-color max-w-xs sm:max-w-sm mx-auto" />
 	<div>
 		<span class="arranged pt-4 pb-2">
 			<span>Category: </span>
-			<span class="text-primary-400">{$currentRoundCategory}</span>
+			<span class="text-primary-400">{category}</span>
 		</span>
 		{#if userIsDasher}
 			<div class="py-2 px-3">
 				<div class="w-full flex justify-center items-center gap-x-5">
 					<span class="text-sm">Round Timer (secs)</span>
 					<div class="flex items-center gap-x-1.5">
-						<button type="button" class="timer-button text-lg" on:click={subtractTime}>—</button>
+						<button type="button" class="timer-button text-lg" on:click={timeControl.subtract}>—</button>
 						<input
 							class="p-0 w-6 bg-transparent border-0 text-center"
 							type="text"
 							bind:value={timer}
 							disabled
 						/>
-						<button type="button" class="timer-button text-lg" on:click={addTime}>＋</button>
+						<button type="button" class="timer-button text-lg" on:click={timeControl.add}>＋</button>
 					</div>
 				</div>
 			</div>
@@ -100,7 +91,7 @@
 		<button
 			type="button"
 			class="btn variant-filled selection-button"
-			on:click|preventDefault={newPrompt}>New</button
+			on:click|preventDefault={async () => await $sessionManagerStore.setRandomPrompt()}>New</button
 		>
 		<button
 			type="button"

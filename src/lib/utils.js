@@ -1,8 +1,10 @@
 /**
- * @typedef {import("./types.js").Category} Category
+ * @typedef {import("$lib/types").Category} Category
  */
 
-import { config } from './config.js';
+import { config } from '$lib/config';
+
+const letters = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
 
 /** @param {boolean} disabled */
 export const getButtonVariant = (disabled) => (disabled ? 'variant-ghost' : 'variant-filled');
@@ -29,8 +31,6 @@ export function toTitleCase(str) {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 }
-
-const letters = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
 
 /**
  * Generate a session ID consisting out of letters and integers

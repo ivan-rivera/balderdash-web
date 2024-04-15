@@ -1,26 +1,17 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { getSessionFromDb } from '$lib/session';
-	import { SESSION_STATES } from '$lib/types';
-	import { onMount } from 'svelte';
+	import { DB_MANAGER } from '$lib/constants';
+	import DatabaseManager from '$lib/database';
+	import { getContext, onMount } from 'svelte';
 
-	let activeSessionExists = false;
-	let username = '';
+	/** @type {DatabaseManager} */
+	const db = getContext(DB_MANAGER);
 	let sessionId = '';
+	let username = '';
+
 	onMount(async () => {
-		username = localStorage.getItem('username') || '';
 		sessionId = localStorage.getItem('sessionId') || '';
-		let isGameInProgress = sessionId !== '' && username !== '';
-		if (isGameInProgress) {
-			let sessionState = await getSessionFromDb(sessionId);
-			activeSessionExists =
-				(sessionState.state == SESSION_STATES.INITIATED ||
-					sessionState.state == SESSION_STATES.STARTED) &&
-				Object.keys(sessionState.scoreboard).includes(username);
-			if (!activeSessionExists) {
-				localStorage.clear();
-			}
-		}
+		username = localStorage.getItem('username') || '';
 	});
 </script>
 
@@ -43,14 +34,16 @@
 			class="variant-filled action-button"
 			on:click={() => goto('/join')}>Join Game</button
 		>
-		{#if activeSessionExists}
-			<button
-				name="resume-game"
-				type="button"
-				class="variant-filled action-button"
-				on:click={() => goto(`/${sessionId}`)}>Resume Game</button
-			>
-		{/if}
+		{#await db.activeSessionExists(username, sessionId) then sessionExists}
+			{#if sessionExists}
+				<button
+					name="resume-game"
+					type="button"
+					class="variant-filled action-button"
+					on:click={() => goto(`/${sessionId}`)}>Resume Game</button
+				>
+			{/if}
+		{/await}
 	</div>
 	<p class="my-5">
 		The iconic party game of bluffing and trivia! Guess or craft clever definitions for a mix of

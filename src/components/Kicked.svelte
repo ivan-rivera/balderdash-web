@@ -1,10 +1,12 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { kickedRegistry } from '$lib/store.js';
+	import { session } from '$lib/store';
 	import lightImage from '$lib/assets/not-your-session-light.svg';
 	import darkImage from '$lib/assets/not-your-session-dark.svg';
+
+	const { kicked } = session;
 	let username = localStorage.getItem('username') || '';
-	$: kicker = $kickedRegistry[username] ?? '';
+	$: kicker = $kicked[username] ?? '';
 	function returnHome() {
 		localStorage.clear();
 		goto('/');
@@ -12,7 +14,7 @@
 </script>
 
 <div class="text-center">
-	<h1 class="h1 pb-5">You've been kicked out</h1>
+	<h1 class="h1 pb-5">Kicked</h1>
 	<div class="pb-5">
 		<span>You've been removed from this session by</span>
 		<span class="text-primary-400">{kicker}</span>

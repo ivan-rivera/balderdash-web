@@ -1,15 +1,18 @@
 <script>
-	import Fa from 'svelte-fa';
+	import { session } from '$lib/store'; 
 	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import { sessionPlayers } from '$lib/store.js';
-	import { removePlayer } from '$lib/session.js';
+	import { sessionManagerStore } from '$lib/store';
+	import Fa from 'svelte-fa';
+
 	const modalStore = getModalStore();
-	let playerToRemove = $sessionPlayers[0];
-	let sessionId = localStorage.getItem('sessionId') || '';
-    let username = localStorage.getItem('username') || '';
+	const { players } = session;
+
+	let playerToRemove = $players[0];
+	let username = localStorage.getItem('username') || '';
 	async function kickPlayer() {
-		removePlayer(sessionId, username, playerToRemove);
+		// TODO: handle exceptions?
+		await $sessionManagerStore.kick(username, playerToRemove);
 		modalStore.close();
 	}
 </script>
@@ -25,7 +28,7 @@
 	<label class="label pt-5">
 		<span class="text-lg">Player to remove</span>
 		<select class="select" bind:value={playerToRemove}>
-			{#each $sessionPlayers as player}
+			{#each $players as player}
 				<option value={player}>{player}</option>
 			{/each}
 		</select>
