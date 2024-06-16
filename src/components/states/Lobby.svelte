@@ -1,15 +1,13 @@
 <script>
-	/**
-	 * @typedef {import('firebase/database').Database} Database
-	 */
+	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
-	import { config } from '$lib/config';
-	import { ClientError, handleError } from '$lib/errors';
-	import { sessionManagerStore } from '$lib/store';
-	import { session } from '$lib/store';
-	import { getButtonVariant } from '$lib/utils';
+	import config from '$lib/config';
+	import { SESSION, USERNAME } from '$lib/constants';
+	import { session, sessionData } from '$lib/store';
+	import { getButtonVariant, handleError } from '$lib/utils';
 	import { faCheckCircle, faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { getContext } from 'svelte';
 	import Fa from 'svelte-fa';
 
 	const toastStore = getToastStore();
@@ -19,13 +17,13 @@
 	$: buttonVariant = getButtonVariant(isButtonDisabled);
 
 	let sessionId = $page.params.sessionId;
-	let username = localStorage.getItem('username') ?? 'unknown';
+	let username = getContext(USERNAME);
 	let invitationText = 'Join me for a game of Balderdash!';
 	let invitationUrl = `${config.url}/join?id=${sessionId}`;
 	let invitationTextAndUrl = `${invitationText} URL: ${invitationUrl}`;
 	const invite = async () => {
 		if (navigator === undefined) {
-			let error = new ClientError('Navigator not available');
+			let error = new Error('Navigator not available');
 			handleError(toastStore, error);
 			throw error;
 		} else if (navigator.share) {
@@ -37,7 +35,7 @@
 				throw error;
 			}
 		} else if (navigator.clipboard === undefined || navigator.clipboard.writeText === undefined) {
-			let error = new ClientError('This functionality is not supported on your device');
+			let error = new Error('This functionality is not supported on your device');
 			handleError(toastStore, error);
 			throw error;
 		} else {
@@ -103,15 +101,16 @@
 	{/if}
 	<div class="mt-5">
 		{#if username === $host}
-			<button
-				name="start-game"
-				type="button"
-				class="{buttonVariant} text-2xl button-xl rounded-lg w-full p-3 mb-2"
-				disabled={isButtonDisabled}
-				on:click={async () =>
-					$sessionManagerStore.launch().catch((error) => handleError(toastStore, error))}
-				>Launch
-			</button>
+			<form action="?/lobby.launch" method="POST" use:enhance>
+				<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+				<button
+					name="start-game"
+					type="submit"
+					class="{buttonVariant} text-2xl button-xl rounded-lg w-full p-3 mb-2"
+					disabled={isButtonDisabled}
+					>Launch
+				</button>
+			</form>
 		{:else}
 			<p class="text-tertiary-700 pb-5">Waiting for host to start the game...</p>
 		{/if}

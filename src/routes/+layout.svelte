@@ -1,34 +1,28 @@
 <script>
-	/**
-	 * @typedef {import('firebase/app').FirebaseApp} FirebaseApp
-	 * */
-
-	import { signIn } from '$lib/auth';
-	import { DB_MANAGER } from '$lib/constants';
-	import DatabaseManager from '$lib/database';
+	import { handleError } from '$lib/utils'; 
+	import { signIn } from '$lib/firebase/auth';
+	import { FIREBASE } from '$lib/constants';
+	import { firebaseApp } from '$lib/firebase/client';
 	import { AppShell, Modal, Toast, getToastStore, initializeStores } from '@skeletonlabs/skeleton';
 	import { onMount, setContext } from 'svelte';
 	import '../app.postcss';
-	import Header from '../components/Header.svelte';
 	import Footer from '../components/footer/Footer.svelte';
 	import Kick from '../components/modals/Kick.svelte';
 	import Prompt from '../components/modals/Prompt.svelte';
-	import { firebaseApp } from '$lib/firebase/client';
-	import { ClientError, handleError } from '$lib/errors';
+	import Header from '../components/globals/Header.svelte';
 
 	initializeStores();
-
 	const toastStore = getToastStore();
-
 	const modalRegistry = {
 		prompt: { ref: Prompt },
 		kick: { ref: Kick },
 	};
-
-	setContext(DB_MANAGER, new DatabaseManager(firebaseApp));
+	setContext(FIREBASE, firebaseApp);
 	onMount(
 		async () =>
-			await signIn(firebaseApp).catch((error) => handleError(toastStore, new ClientError(error))),
+			await signIn(firebaseApp)
+			.then((cred) => document.cookie=`uid=${cred}`)
+			.catch((error) => handleError(toastStore, new Error(error))),
 	);
 </script>
 

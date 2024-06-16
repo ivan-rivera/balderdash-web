@@ -1,16 +1,41 @@
-/**
- * @typedef {import("$lib/types").Session} Session
- */
-
-import { getDatabase } from 'firebase-admin/database';
-import { firebaseApp } from '$lib/firebase/server';
-import { DB } from '$lib/constants';
-
+import { USERNAME } from '$lib/constants';
+import { getSession } from '$lib/firebase/server';
+import { kick as globalKick } from '$lib/game/global';
+import { launch as lobbyLaunch } from '$lib/game/lobby';
+import { prompt as selectPrompt } from '$lib/game/select';
+import { submit as guessSubmit, proceed as guessProceed } from '$lib/game/guess';
+import { proceed as markProceed } from '$lib/game/mark';
+import { proceed as groupProceed } from '$lib/game/group';
+import { cast as voteCast, proceed as voteProceed } from '$lib/game/vote';
+import { proceed as tallyProceed } from '$lib/game/tally';
 
 /** @type {import('./$types').PageServerLoad} */
-export async function load({ params }) {
-	const rtdb = getDatabase(firebaseApp);
-	const snapshot = await rtdb.ref(`${DB}/${params.sessionId}`).get();
-	const session = /** @type {Session} */ (snapshot.val());
-	return { session };
+export async function load({ cookies, params }) {
+	return {
+		session: await getSession(params.sessionId),
+		username: cookies.get(USERNAME) || '',
+	};
 }
+
+const actionMap = {
+	'global.kick': globalKick,
+	'lobby.launch': lobbyLaunch,
+	'select.prompt.accept': selectPrompt.accept,
+	'select.prompt.randomize': selectPrompt.randomize,
+	'select.prompt.customize': selectPrompt.customize,
+	'guess.submit': guessSubmit,
+	'guess.continue': guessProceed,
+	'mark.continue': markProceed,
+	'group.continue': groupProceed,
+	'vote.cast': voteCast,
+	'vote.continue': voteProceed,
+	'tally.continue': tallyProceed,
+};
+
+/** @type {import('./$types').Actions} */
+export const actions = Object.fromEntries(
+	Object.entries(actionMap).map(([key, f]) => [
+		key,
+		async ({ cookies, params, request }) => f(cookies, params, request),
+	]),
+);

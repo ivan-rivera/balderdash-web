@@ -2,7 +2,7 @@
  * @typedef {import("$lib/types").Category} Category
  */
 
-import { config } from '$lib/config';
+import config from '$lib/config';
 
 /**
  * Load vocabulary for a given category
@@ -16,7 +16,7 @@ async function loadVocab(source) {
 /**
  * Get a random prompt-response pair from a vocabulary
  * @param {Object.<string, string>} vocab - a dictionary of prompt-response pairs
- * @returns {Object.<string, string>} - a random prompt-response pair
+ * @returns {{prompt: string, response: string}} - a random prompt-response pair
  */
 export function getRandomPair(vocab) {
 	const keys = Object.keys(vocab);

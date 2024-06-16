@@ -1,51 +1,52 @@
 <script>
 	/**
-	 * @typedef {import('firebase/database').Database} Database
 	 * @typedef {import("$lib/types").Session} Session
+	 * @typedef {import("$lib/types").PlayerState} PlayerState
 	 */
+
 	import { page } from '$app/stores';
-	import { DB_MANAGER, PLAYER_STATES, SESSION_STATES } from '$lib/constants';
-	import { SessionManager } from '$lib/session';
-	import { sessionManagerStore, session } from '$lib/store';
-	import { getContext, onMount } from 'svelte';
-	import Empty from '../../components/Empty.svelte';
-	import Game from '../../components/Game.svelte';
-	import Kicked from '../../components/Kicked.svelte';
-	import Loading from '../../components/Loading.svelte';
-	import Lobby from '../../components/Lobby.svelte';
-	import Outsider from '../../components/Outsider.svelte';
-	import Summary from '../../components/Summary.svelte';
+	import { DB, FIREBASE, PLAYER_STATES, SESSION_STATES, USERNAME } from '$lib/constants';
+	import { sessionData } from '$lib/store';
+	import { child, getDatabase, onValue, ref } from 'firebase/database';
+	import { getContext, onMount, setContext } from 'svelte';
+	import Empty from '../../components/states/Empty.svelte';
+	import Game from '../../components/states/Game.svelte';
+	import Kicked from '../../components/states/Kicked.svelte';
+	import Loading from '../../components/states/Loading.svelte';
+	import Lobby from '../../components/states/Lobby.svelte';
+	import Outsider from '../../components/states/Outsider.svelte';
+	import Summary from '../../components/states/Summary.svelte';
 
 	/** @type {import('./$types').PageData} */
 	export let data;
 
-	sessionManagerStore.set(
-		new SessionManager(data.session, $page.params.sessionId, getContext(DB_MANAGER)),
-	);
-
-	const { kicked, players, state } = session;
-
-	let username = '';
-	let playerState = PLAYER_STATES.LOADING;
-	let sessionState = SESSION_STATES.LOADING;
-	let loaded = false;
-
+	const sessionRef = child(ref(getDatabase(getContext(FIREBASE)), DB), $page.params.sessionId);
+	sessionData.set(data.session);
+	setContext(USERNAME, data.username);
 	onMount(async () => {
-		await $sessionManagerStore.sync(sessionManagerStore.set);
-		username = localStorage.getItem('username') || '';
-		loaded = true;
+		onValue(sessionRef, (snapshot) => {
+			sessionData.set(snapshot.val());
+		});
 	});
 
-	$: playerInSession = $players.includes(username);
-	$: playerWasKicked = Object.keys($kicked ?? {}).includes(username);
-	$: playerState = !loaded
-		? PLAYER_STATES.LOADING
-		: playerWasKicked
+	$: sessionState = $sessionData.state;
+	$: playerState = resolvePlayerState($sessionData, data.username);
+
+	/**
+	 * Resolve player state
+	 * @param {Session} session - session data
+	 * @param {string} username - username
+	 * @returns {PlayerState} - player state
+	 */
+	function resolvePlayerState(session, username) {
+		const playerWasKicked = Object.keys(session?.kicked ?? {}).includes(username);
+		const playerInSession = Object.keys(session?.scoreboard ?? {}).includes(username);
+		return playerWasKicked
 			? PLAYER_STATES.KICKED
 			: !playerInSession
 				? PLAYER_STATES.OUTSIDER
 				: PLAYER_STATES.READY;
-	$: sessionState = !loaded ? SESSION_STATES.LOADING : $state;
+	}
 </script>
 
 {#if playerState == PLAYER_STATES.LOADING || sessionState == SESSION_STATES.LOADING}

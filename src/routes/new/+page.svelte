@@ -4,42 +4,19 @@
 	 * @typedef {import("$lib/types").Category} Category
 	 */
 
-	import { goto } from '$app/navigation';
-	import { config } from '$lib/config';
-	import { DB_MANAGER } from '$lib/constants';
-	import DatabaseManager from '$lib/database';
-	import { DatabaseError, handleError } from '$lib/errors';
+	import config from '$lib/config';
 	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
-	import { getToastStore, RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
-	import { getContext } from 'svelte';
+	import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
-	import Entry from '../../components/Entry.svelte';
-
-	/** @type {DatabaseManager} */
-	const db = getContext(DB_MANAGER);
-	const toastStore = getToastStore();
+	import Entry from '../../components/forms/Entry.svelte';
 
 	let username = '';
 	let categories = config.categories;
 	let roundsChoice = config.rounds.min;
 	let aiChoice = config.ais.min;
 
-	$: selectedCategories = categories
-		.filter((category) => category.enabled)
-		.map((category) => /** @type {Category} */ (category.name));
-
 	/** @param {string} text */
 	let textToId = (text) => text.toLowerCase().replace(/\s/g, '-');
-
-	let submitHandler = async () => {
-		await db.create(username, roundsChoice, aiChoice, selectedCategories)
-			.then(async (sessionId) => {
-				localStorage.setItem('username', username);
-				localStorage.setItem('sessionId', sessionId);
-				goto(`/${sessionId}`);
-			})
-			.catch((error) => handleError(toastStore, new DatabaseError(error)));
-	};
 </script>
 
 <main>
@@ -50,7 +27,7 @@
 		<span>Familiarise yourself with the <span class="attention">rules</span> before you start!</span
 		>
 	</span>
-	<Entry bind:username onSubmit={submitHandler}>
+	<Entry bind:username>
 		<!-- Target rounds -->
 		<div class="small-gap">
 			<RangeSlider
@@ -70,13 +47,7 @@
 		</div>
 		<!-- AI guesses selection -->
 		<div class="small-gap">
-			<RangeSlider
-				name="ai-slider"
-				bind:value={aiChoice}
-				max={config.ais.max}
-				step={1}
-				ticked
-			>
+			<RangeSlider name="ai-slider" bind:value={aiChoice} max={config.ais.max} step={1} ticked>
 				<div class="flex justify-between items-center">
 					<div class="font-bold">AI Guesses</div>
 					<div class="text-xs">{aiChoice} / {config.ais.max}</div>

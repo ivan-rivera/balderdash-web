@@ -1,6 +1,3 @@
-// TODO: Add SDKs for Firebase products that you want to use
-// TODO: Add prod config
-// https://firebase.google.com/docs/web/setup#available-libraries
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { dev } from '$app/environment';
 import {

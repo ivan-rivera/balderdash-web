@@ -1,23 +1,23 @@
 /**
  * @typedef {import("$lib/types").Category} Category
+ * @typedef {import("@skeletonlabs/skeleton").ToastStore} ToastStore
  */
 
-import { config } from '$lib/config';
-
-const letters = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
+import { goto } from '$app/navigation';
+import config from '$lib/config';
 
 /** @param {boolean} disabled */
 export const getButtonVariant = (disabled) => (disabled ? 'variant-ghost' : 'variant-filled');
 
 /**
  * Get appropriate prompt and response names for a given category
- * @param {Category} category 
+ * @param {Category} category
  */
 export function getCategoryWords(category) {
-    let targetCategory = config.categories.find((cat) => cat.name === category);
-    let prompt = targetCategory?.promptName || '';
-    let response = targetCategory?.responseName || '';
-    return { prompt, response };
+	let targetCategory = config.categories.find((cat) => cat.name === category);
+	let prompt = targetCategory?.promptName || '';
+	let response = targetCategory?.responseName || '';
+	return { prompt, response };
 }
 
 /**
@@ -25,55 +25,43 @@ export function getCategoryWords(category) {
  * @param {string} str
  */
 export function toTitleCase(str) {
-    return str
-        .toLowerCase()
-        .split('_')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+	return str
+		.toLowerCase()
+		.split('_')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+}
+
+/** @param array {any[]} */
+export function shuffle(array) {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
+	}
+	return array;
 }
 
 /**
- * Generate a session ID consisting out of letters and integers
- * @param {number} characters - number of characters that must appear in the ID
- * @param {number} integers - number of integers that must appear in the ID
- * @returns {string} - session ID
+ * Handle error
+ * @param {ToastStore} store
+ * @param {Error} error
+ * @throws {Error} - rethrows the error
  */
-export function generateSessionId(
-	characters = config.sessionId.numCharacters,
-	integers = config.sessionId.numIntegers
-) {
-	return generateRandomString(characters) + generateRandomNumber(integers);
+export function handleError(store, error) {
+	store.trigger({
+		message: error.message,
+		timeout: config.toastTimeout,
+		background: 'variant-filled-error',
+	});
 }
 
 /**
- * Retrieve a random character from a string of characters
- * @param {string} array - an array of strings
- * @returns {string} - a random string from the array
+ * Return back home and reset cookies
+ * @param {string} username - user name
+ * @param {string} sessionId - session ID
  */
-function generateRandomIndex(array = letters) {
-	const index = Math.floor(Math.random() * array.length);
-	return array[index];
-}
-
-/**
- * Create a random string of characters
- * @param {number} len - length of string to generate
- * @param {string} root - root string
- * @returns {string} - a random string
- */
-function generateRandomString(len, root = '') {
-	if (len === 0) return root;
-	const newRoot = root + generateRandomIndex();
-	return generateRandomString(len - 1, newRoot);
-}
-
-/**
- * Generate a random number as a string
- * @param {number} len - length of number to generate
- * @returns {string} - a random number formatted as a string
- */
-function generateRandomNumber(len) {
-	const max = Math.pow(10, len) - 1;
-	const num = Math.floor(Math.random() * max);
-	return String(num).padStart(len, '0');
+export function returnHome(username, sessionId) {
+	document.cookie = `${username}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'`;
+	document.cookie = `${sessionId}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'`;
+	goto('/');
 }

@@ -1,29 +1,29 @@
 <script>
-	import { config } from '$lib/config';
-	import { getButtonVariant } from '$lib/utils';
+	import config from '$lib/config';
+	import { getButtonVariant, handleError } from '$lib/utils';
 	import { goto } from '$app/navigation';
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+	import { getToastStore } from '@skeletonlabs/skeleton';
 
+	const toastStore = getToastStore();
 	let usernameRegex = /^[a-zA-Z][a-zA-Z0-9-]{0,11}$/;
 	export let submitButtonEnabled = true;
 	export let username = '';
 	$: isValidUsername = usernameRegex.test(username);
 	$: isButtonDisabled = !isValidUsername || !submitButtonEnabled;
 	$: buttonVariant = getButtonVariant(isButtonDisabled);
-
-	/**
-	 * @prop {(event: SubmitEvent) => void} onSubmit - submit handle function
-	 * @type {() => void}
-	 */
-	export let onSubmit;
+	$: if ($page.form?.message) handleError(toastStore, new Error($page.form.message));
 </script>
 
-<form id="session">
+<form method="POST" use:enhance>
 	<!-- Username entry -->
 	<label class="label">
 		<div class="font-bold small-gap">Your Username</div>
 		<input
 			class="input"
 			title="username"
+			name="username"
 			type="text"
 			placeholder="Player1"
 			bind:value={username}
@@ -38,10 +38,9 @@
 	<slot />
 	<!-- Submit button -->
 	<button
-		type="button"
+		type="submit"
 		disabled={isButtonDisabled}
-		class="{buttonVariant} btn-xl rounded-lg w-full mb-5"
-		on:click|preventDefault={onSubmit}>Go!</button
+		class="{buttonVariant} btn-xl rounded-lg w-full mb-5">Go!</button
 	>
 	{#if isButtonDisabled}
 		<p class="text-sm italic text-center pb-2 text-tertiary-700">

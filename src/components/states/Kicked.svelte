@@ -1,16 +1,13 @@
 <script>
-	import { goto } from '$app/navigation';
 	import { session } from '$lib/store';
 	import lightImage from '$lib/assets/not-your-session-light.svg';
 	import darkImage from '$lib/assets/not-your-session-dark.svg';
+	import { SESSION_ID, USERNAME } from '$lib/constants';
+	import { getContext } from 'svelte';
+	import { returnHome } from '$lib/utils';
 
 	const { kicked } = session;
-	let username = localStorage.getItem('username') || '';
-	$: kicker = $kicked[username] ?? '';
-	function returnHome() {
-		localStorage.clear();
-		goto('/');
-	}
+	$: kicker = $kicked[getContext(USERNAME)] ?? '';
 </script>
 
 <div class="text-center">
@@ -27,7 +24,7 @@
 		You cannot rejoin the session anymore. Note that the removal mechanism allows players to remove
 		a member of their session that has become inactive and without whom the game cannot proceed
 	</p>
-	<button type="button" class="btn btn-sm variant-ringed my-10" on:click={returnHome}
+	<button type="button" class="btn btn-sm variant-ringed my-10" on:click={() => returnHome(USERNAME, SESSION_ID)}
 		>Return home</button
 	>
 </div>

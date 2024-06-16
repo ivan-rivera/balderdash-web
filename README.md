@@ -38,30 +38,21 @@ You can preview the production build with `npm run preview`.
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
 Todo items:
+- Clean up rules
+- Add email support
+- Add Posthog
+- Go over remaining inline to-dos
+- Check spelling
+- Write unit tests
+- Refactor scoring fn
+- Automation testing (think of edge cases)
+- Write docs (docstrings + readme)
 - Upgrade Firebase to Blaze
-- Firebase security rules
-- Add another sub-state to dasher marking: grouping stage where dasher groups similar phony responses
-- Add double-bluff logic: guessers can opt for a double bluff, if no one votes for them or if their answer is correct, they get minus 3 points, but if someone does vote for them, each vote counts for 2
-- Add a scoreboard to footer (look for appropriate progress bars)
-- Test header
-- Test /new (user validation, categories, button, conditional text, home, launch)
-- Set up /join
-- Test /join (validation, home, launch)
-- Adapt for mobile
-- Write meta pages
-- Hook up Firebase
-- ...
-- Integration testing with many users?
+- Rate limit Firebase
 - Set up GH CI/CD test + deploy
+- Set up another repo for data collection and collect data
+- Update data links
+- Update domain name
 
-UI TODO:
-- Display "you (or PlayerX) is the dasher"
-- Display session ID in the footer
-- If you have an active session, then expose a "Resume Game" option on the home page -> validate state
-
-
-TO TEST:
-- Username validation
-- Entry button disabled
 
 curl -i -X POST http://localhost:5173/refresh

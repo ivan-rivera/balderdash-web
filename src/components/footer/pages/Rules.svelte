@@ -1,6 +1,8 @@
 <script>
-	// TODO: add screenshots
+	// TODO: add screenshots and make it prettier
 	// TODO: add double bluff logic
+	// TODO: link points to config
+	// TODO: use fancy lists
 </script>
 
 <div class="footer-page-pad">
@@ -8,10 +10,10 @@
 	<br class="pb-5" />
 	<p>
 		Balderdash is a popular board game where players concoct convincing but false responses to a
-		prompt. The game revolves around the dynamic of a "prompt" and "response" pairs that depend
-		on the category -- e.g. if the category is "rare words", then the prompt will be a word and
-		the response will be the definition of that word, whereas in the context of film taglines the
-		prompt will be a movie title and the response will be the tagline.
+		prompt. The game revolves around the dynamic of a "prompt" and "response" pairs that depend on
+		the category -- e.g. if the category is "rare words", then the prompt will be a word and the
+		response will be the definition of that word, whereas in the context of film taglines the prompt
+		will be a movie title and the response will be the tagline.
 	</p>
 
 	<br class="pb-5" />
@@ -25,8 +27,16 @@
 	</p>
 	<br class="pb-5" />
 	<p>
-		The guessers must submit their answers within a pre-defined time limit, if they do not, then a
-		random response will be submitted on their behalf
+		The guessers must submit their answers within a pre-defined time limit, if they do not, then
+		they will still be able to participate in the game by voting for other answers
+	</p>
+	<br class="pb-5" />
+	<p>
+		Guessers can choose to submit a "double bluff" response -- if they do so, then every vote that
+		their submission receives will gain 2 points instead of the usual 1, however, if their response
+		does not get a single vote, then they will lose 3 points. Note that if a double-bluff submission
+		is marked as "correct" by the dasher, then the double-bluff flag has no effect, it is only
+		applicable to phony answers.
 	</p>
 	<br class="pb-5" />
 	<p>
@@ -44,7 +54,9 @@
 	<h3 class="h3">Scoring</h3>
 	<br class="pb-5" />
 	<ul>
-		<li>The dasher gets <strong>3 points</strong> if no one guesses the correct answer</li>
+		<li>
+			The dasher gets <strong>3 points</strong> if no one guesses (not votes) the correct answer
+		</li>
 		<li>Players who submit responses close to the true answer get <strong>3 points</strong></li>
 		<li>
 			Players who find the correct answer during the voting stage get <strong>2 points</strong>

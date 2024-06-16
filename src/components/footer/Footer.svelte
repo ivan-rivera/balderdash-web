@@ -13,7 +13,7 @@
 	import { getDrawerStore, Drawer, LightSwitch } from '@skeletonlabs/skeleton';
 	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 	import Fa from 'svelte-fa';
-	import { config } from '$lib/config';
+	import config from '$lib/config';
 
 	const drawerStore = getDrawerStore();
 	const drawerSettings = { rounded: 'rounded-xl', position: 'bottom' };
