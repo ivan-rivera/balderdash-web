@@ -2,6 +2,9 @@
 	import { goto } from '$app/navigation';
 	import lightImage from '$lib/assets/404-light.svg';
 	import darkImage from '$lib/assets/404-dark.svg';
+	import { onMount } from 'svelte';
+	import posthog from 'posthog-js';
+	onMount(() => posthog.capture('error', { type: 'page_not_found' }));
 </script>
 
 <div class="text-center">

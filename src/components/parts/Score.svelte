@@ -1,11 +1,11 @@
 <script>
-    /**
+	/**
 	 * @typedef {import("$lib/types").Scoreboard} Scoreboard
 	 */
-    import { session } from '$lib/store';
-    const { scoreboard } = session;
+	import { session } from '$lib/store';
+	const { scoreboard } = session;
 
-    /**
+	/**
 	 * Sorts the scores of players in descending order
 	 * @param {Scoreboard} scores
 	 */

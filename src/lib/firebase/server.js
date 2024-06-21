@@ -6,7 +6,7 @@
 
 import jwt from 'jsonwebtoken';
 import config from '$lib/config';
-import { DB, TOKEN } from '$lib/constants';
+import { CONTACT_DB, DB, FEEDBACK, TOKEN } from '$lib/constants';
 import { getDatabase } from 'firebase-admin/database';
 import { dev } from '$app/environment';
 import admin from 'firebase-admin';
@@ -25,6 +25,7 @@ import {
 	PRIVATE_SECRET_TOKEN,
 } from '$env/static/private';
 import { PUBLIC_DEV_FB_DATABASE_URL, PUBLIC_PROD_FB_DATABASE_URL } from '$env/static/public';
+import { client } from '$lib/analytics.js';
 
 const letters = 'abcdefghijklmnopqrstuvwxyz'.toUpperCase();
 
@@ -54,6 +55,8 @@ const firebaseApp =
 
 const rtdb = getDatabase(firebaseApp);
 export const dbRef = rtdb.ref(DB);
+export const contactRef = rtdb.ref(CONTACT_DB);
+export const feedbackRef = rtdb.ref(FEEDBACK);
 
 /**
  * Get session from ID
@@ -161,5 +164,11 @@ export function tokenIsValid(token) {
  * @returns {void}
  */
 export function validateToken(cookies) {
-	if (!tokenIsValid(cookies.get(TOKEN) || '')) throw new Error('Invalid JWT token');
+	if (!tokenIsValid(cookies.get(TOKEN) || '')) {
+		client.capture({
+			event: 'error',
+			properties: { type: 'invalid_token' },
+		});
+		throw new Error('Invalid JWT token');
+	}
 }

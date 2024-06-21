@@ -3,14 +3,23 @@
  */
 
 import config from '$lib/config';
-import { DEFAULT_SCORE, INITIAL_SESSION_STATE, SESSION_ID, SESSION_STATES, UID, USERNAME } from '$lib/constants';
+import {
+	DEFAULT_SCORE,
+	INITIAL_SESSION_STATE,
+	SESSION_ID,
+	SESSION_STATES,
+	UID,
+	USERNAME,
+} from '$lib/constants';
 import { createNewSessionId, dbRef, validateToken } from '$lib/firebase/server';
 import { redirect } from '@sveltejs/kit';
-
+import { enquire } from '$lib/contact.js';
+import { client } from '$lib/analytics.js';
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-	default: async ({ cookies, request }) => {
+	enquire: async ({ cookies, request }) => enquire(cookies, request),
+	enter: async ({ cookies, request }) => {
 		validateToken(cookies);
 		const data = await request.formData();
 		const uid = String(cookies.get(UID));
@@ -34,9 +43,12 @@ export const actions = {
 			categories,
 		};
 		const sessionId = await createNewSessionId();
+		client.capture({
+			event: 'game_created',
+		});
 		await dbRef.child(sessionId).set(newSessionState);
-		cookies.set(USERNAME, creator, {path: '/'});
-		cookies.set(SESSION_ID, sessionId, {path: '/'});
-		throw redirect(303, `/${sessionId}`)
+		cookies.set(USERNAME, creator, { path: '/' });
+		cookies.set(SESSION_ID, sessionId, { path: '/' });
+		throw redirect(303, `/${sessionId}`);
 	},
 };

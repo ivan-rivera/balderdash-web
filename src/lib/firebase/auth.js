@@ -12,5 +12,5 @@ import { getAuth, signInAnonymously } from 'firebase/auth';
 export async function signIn(app) {
 	const auth = getAuth(app);
 	if (!auth.currentUser) await signInAnonymously(auth);
-    return auth.currentUser?.uid || '';
+	return auth.currentUser?.uid || '';
 }

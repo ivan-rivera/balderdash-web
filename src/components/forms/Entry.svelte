@@ -16,10 +16,10 @@
 	$: if ($page.form?.message) handleError(toastStore, new Error($page.form.message));
 </script>
 
-<form method="POST" use:enhance>
+<form method="POST" action="?/enter" use:enhance on:submit={() => localStorage.clear()}>
 	<!-- Username entry -->
 	<label class="label">
-		<div class="font-bold small-gap">Your Username</div>
+		<span class="font-bold small-gap">Your Username</span>
 		<input
 			class="input"
 			title="username"

@@ -47,13 +47,16 @@ export async function loadVocabs() {
 			vocab: await loadVocab(category.source),
 		};
 	});
-	return Promise.all(vocabPromises);
+	return await Promise.all(vocabPromises);
 }
 
 /**
  * Category names and their vocabularies
  */
-export let vocabs = await loadVocabs();
+export let vocabs;
+(async function () {
+	vocabs = await loadVocabs();
+})();
 
 export async function refreshVocabs() {
 	vocabs = await loadVocabs();

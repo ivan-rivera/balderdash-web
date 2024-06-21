@@ -18,7 +18,7 @@
 	const { dasher, guesses, votes, category, response: trueResponse } = round;
 	let user = getContext(USERNAME);
 	$: ({ prompt } = getCategoryWords($category));
-	$: userIsDasher = $dasher == user;
+	$: userIsDasher = $dasher === user;
 	$: userHasVoted = user in $votes;
 	const correctGuessers = Object.keys($guesses).filter((player) => $guesses[player].correct);
 	const incorrectGuesses = Object.fromEntries(

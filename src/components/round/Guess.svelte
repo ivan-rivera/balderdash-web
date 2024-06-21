@@ -119,13 +119,13 @@
 				you will not be able to gain any points for it!
 			</p>
 		{/if}
-	{:else if guessing == 0}
+	{:else if guessing === 0}
 		<p class="font-bold">All guesses submitted!</p>
 		<p>Wait for the dasher to continue</p>
 	{:else}
 		<p class="font-bold">Time is up!</p>
 	{/if}
-	{#if isDasher && (guessing == 0 || seconds <= 0)}
+	{#if isDasher && (guessing === 0 || seconds <= 0)}
 		<form method="POST" action="?/guess.continue">
 			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 			<button type="submit" class="btn variant-filled btn-lg my-5 rounded-lg w-full"

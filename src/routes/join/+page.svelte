@@ -10,7 +10,7 @@
 	<h1 class="h1 text-center pb-10">Join Game</h1>
 	<Entry bind:username>
 		<label class="label">
-			<div class="font-bold small-gap">Session ID</div>
+			<span class="font-bold small-gap">Session ID</span>
 			<input
 				class="input"
 				title="sessionId"

@@ -49,17 +49,17 @@
 	}
 </script>
 
-{#if playerState == PLAYER_STATES.LOADING || sessionState == SESSION_STATES.LOADING}
+{#if playerState === PLAYER_STATES.LOADING || sessionState === SESSION_STATES.LOADING}
 	<Loading />
-{:else if playerState == PLAYER_STATES.KICKED}
+{:else if playerState === PLAYER_STATES.KICKED}
 	<Kicked />
-{:else if playerState == PLAYER_STATES.OUTSIDER}
+{:else if playerState === PLAYER_STATES.OUTSIDER}
 	<Outsider />
-{:else if sessionState == SESSION_STATES.INITIATED}
+{:else if sessionState === SESSION_STATES.INITIATED}
 	<Lobby />
-{:else if sessionState == SESSION_STATES.STARTED}
+{:else if sessionState === SESSION_STATES.STARTED}
 	<Game />
-{:else if sessionState == SESSION_STATES.FINISHED}
+{:else if sessionState === SESSION_STATES.FINISHED}
 	<Summary />
 {:else}
 	<Empty />

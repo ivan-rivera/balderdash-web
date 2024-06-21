@@ -5,6 +5,7 @@
 import { SESSION_STATES } from '$lib/constants';
 import { parseSessionRequest } from '$lib/game/helpers';
 import admin from 'firebase-admin';
+import { client } from '$lib/analytics.js';
 
 /**
  * Proceed after tallying
@@ -12,6 +13,11 @@ import admin from 'firebase-admin';
  */
 export async function proceed(cookies, params, request) {
 	const { sm } = await parseSessionRequest(cookies, params, request);
+	if (sm.session.current === sm.session.limit) {
+		client.capture({
+			event: 'session_completed',
+		});
+	}
 	const payload =
 		sm.session.current === sm.session.limit
 			? { state: SESSION_STATES.FINISHED }
@@ -19,5 +25,5 @@ export async function proceed(cookies, params, request) {
 					current: admin.database.ServerValue.increment(1),
 					[sm.roundPath.next]: sm.nextRoundPayload,
 				};
-	sm.sessionRef.update(payload);
+	await sm.sessionRef.update(payload);
 }

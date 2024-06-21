@@ -16,7 +16,7 @@
 	const { dasher, category, prompt: roundPrompt, response: roundResponse } = round;
 
 	let user = getContext(USERNAME);
-	$: userIsDasher = $dasher == user;
+	$: userIsDasher = $dasher === user;
 	$: ({ prompt } = getCategoryWords($category));
 	let timer = config.timer.default;
 	const customPrompt = () => modalStore.trigger({ type: 'component', component: 'prompt' });
@@ -61,11 +61,11 @@
 			<input type="text" name={TIMER} bind:value={timer} hidden />
 			<input type="text" name={PROMPT} value={$roundPrompt} hidden />
 			<input type="text" name={RESPONSE} value={$roundResponse} hidden />
-			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden/>
+			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 			<button type="submit" class="btn variant-filled selection-button">Accept</button>
 		</form>
 		<form class="button-array" action="?/select.prompt.randomize" method="POST" use:enhance>
-			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden/>
+			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 			<button type="submit" class="btn variant-filled selection-button">New</button>
 		</form>
 		<div class="button-array">

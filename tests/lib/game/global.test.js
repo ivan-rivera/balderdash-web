@@ -1,41 +1,52 @@
-// import { describe, it, expect, vi } from 'vitest';
-// import { kick } from '$lib/game/global';
-// import { parseSessionRequest } from '../../../src/lib/game/helpers';
-// import { get } from 'svelte/store';
+/**
+ * @typedef {import('$lib/types').Session} Session
+ * @typedef {import('$lib/types').Round} Round
+ */
 
-// vi.mock('../../../src/lib/game/helpers', async () => {
-// 	return {
-// 		parseSessionRequest: vi.fn(),
-// 	};
-// });
+import { KICKED, KICKER, ROUND_STATES } from '$lib/constants';
+import { createParseSessionRequestMock, setupMocks } from '../../support/mocks.js';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { refreshVocabs } from '$lib/vocab.js';
+import { feedback, kick } from '$lib/game/global';
+import { REFS } from '$lib/constants';
 
-// describe('kick', () => {
-// 	it('should remove a player from the scoreboard and add them to the kick register', async () => {
-// 		const mockCookies = {
-// 			get: vi.fn((name) => {
-// 				if (name === 'USERNAME') return 'P1';
-// 				else if (name === 'SESSION_ID') return 'ABCD123';
-// 				return '';
-// 			}),
-// 		};
-// 		const mockParams = { sessionId: 'ABCD123' };
-// 		const mockRequest = {
-// 			formData: vi.fn().mockResolvedValue({
-// 				// @ts-ignore
-// 				get: (name) => {
-// 					if (name === 'kicked') return 'P2';
-// 					else if (name === 'kicker') return 'P1';
-// 					return '';
-// 				},
-// 			}),
-// 		};
-// 		const mockForm = await mockRequest.formData();
-// 		const updateSpy = vi.fn();
-// 		parseSessionRequest.mockResolvedValue({
-// 			form: mockForm,
-// 			sm: { roundRef: { update: updateSpy } },
-// 		});
-// 		await kick(mockCookies, mockParams, mockRequest);
-// 		expect(updateSpy).toHaveBeenCalledWith({});
-// 	});
-// });
+beforeAll(async () => {
+	createParseSessionRequestMock();
+	await refreshVocabs();
+});
+
+describe('globally available actions', () => {
+	it('should remove a player from the scoreboard and add them to the kick register', async () => {
+		const { mockCookies, mockRequest, mockParams, mockUpdate } = await setupMocks(
+			'P1',
+			{ [KICKED]: 'P2', [KICKER]: 'P1' },
+			REFS.SESSION,
+		);
+		await kick(mockCookies, mockParams, mockRequest);
+		expect(mockUpdate).toHaveBeenCalledWith({
+			kicked: { P2: 'P1' },
+			'scoreboard/P2': null,
+			'rounds/1': {
+				category: expect.anything(),
+				custom: false,
+				dasher: expect.anything(),
+				guesses: [],
+				prompt: expect.anything(),
+				response: expect.anything(),
+				state: ROUND_STATES.SELECT,
+				timer: expect.anything(),
+			},
+		});
+	});
+	it('should submit feedback', async () => {
+		const { mockCookies, mockRequest, mockParams, mockUpdate } = await setupMocks(
+			'P1',
+			{ feedback: 'hello!' },
+			REFS.FEEDBACK,
+		);
+		await feedback(mockCookies, mockParams, mockRequest);
+		expect(mockUpdate).toHaveBeenCalledWith({
+			[mockParams.sessionId]: { uid: 'uid', feedback: 'hello!' },
+		});
+	});
+});

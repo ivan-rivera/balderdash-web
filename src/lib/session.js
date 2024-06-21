@@ -8,12 +8,7 @@
  * @typedef {import('@sveltejs/kit').Cookies} Cookies
  */
 
-import {
-	DEFAULT_CUSTOM_PROMPT,
-	ROUNDS,
-	ROUND_STATES,
-	SESSION_STATES,
-} from '$lib/constants';
+import { DEFAULT_CUSTOM_PROMPT, ROUNDS, ROUND_STATES, SESSION_STATES } from '$lib/constants';
 import config from '$lib/config';
 import { getRandomPair, getPhonyResponse, vocabs } from '$lib/vocab';
 import { dbRef, getSession } from '$lib/firebase/server';
@@ -40,7 +35,7 @@ export class SessionManager {
 	}
 
 	async launch() {
-		this.sessionRef.update({
+		await this.sessionRef.update({
 			state: SESSION_STATES.STARTED,
 			current: admin.database.ServerValue.increment(1),
 			[this.roundPath.next]: this.nextRoundPayload,

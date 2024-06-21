@@ -1,7 +1,7 @@
 /**
  * @typedef {import('@sveltejs/kit').Cookies} Cookies
  * @typedef {import('../routes/[sessionId]/$types').RouteParams} SessionIdParams
- * 
+ *
  * @typedef {import("firebase/database").DatabaseReference} DatabaseReference
  *
  * Possible session states
@@ -12,6 +12,9 @@
  *
  * Inactive player states
  * @typedef {'KICKED'|'OUTSIDER'|'READY'|'LOADING'|'UNKNOWN'} PlayerState
+ *
+ * Reference types
+ * @typedef {'session'|'round'} Ref
  *
  * Available categories
  * @typedef {'Rare words'|'Scientific names'|'Film taglines'|'Famous people'} Category
@@ -52,7 +55,7 @@
  *
  * A mapping between players and their latest aggregate scores
  * @typedef {Object.<string, number>} Scoreboard
- * 
+ *
  * Session action processing function
  * @typedef {function(Cookies, SessionIdParams, Request): Promise<void>} SessionAction
  */

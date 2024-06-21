@@ -13,7 +13,6 @@ import {
 } from '$lib/constants';
 import { parseSessionRequest } from '$lib/game/helpers';
 import { getRoundScores } from '$lib/score';
-import { SessionManager } from '$lib/session';
 
 /**
  * Submit a guess
@@ -25,7 +24,7 @@ export async function submit(cookies, params, request) {
 	const doubleBluff = Boolean(form.get(DOUBLE_BLUFF));
 	const user = String(cookies.get(USERNAME));
 	const payload = { ...DEFAULT_GUESS, response: submission, double: doubleBluff };
-	sm.roundRef.update({ [`${GUESSES}/${user}`]: payload });
+	await sm.roundRef.update({ [`${GUESSES}/${user}`]: payload });
 }
 
 /**
@@ -34,8 +33,8 @@ export async function submit(cookies, params, request) {
  */
 export async function proceed(cookies, params, request) {
 	const { sm } = await parseSessionRequest(cookies, params, request);
-	const updates = guessesExist(sm) ? getContinuationPayload(sm) : getTerminatationPayload(sm);
-	sm.sessionRef.update(updates);
+	const updates = guessesExist(sm) ? getContinuationPayload(sm) : getTerminationPayload(sm);
+	await sm.sessionRef.update(updates);
 }
 
 /**
@@ -52,7 +51,7 @@ function guessesExist(sm) {
  * @param {SessionManager} sm - session manager
  * @returns {Object<string, any>} - payload
  */
-function getTerminatationPayload(sm) {
+function getTerminationPayload(sm) {
 	const roundPath = sm.roundPath.current;
 	const scores = getRoundScores(sm.round.dasher, {}, {}, [], sm.session.scoreboard);
 	const interruptionReason = 'No guesses were submitted';

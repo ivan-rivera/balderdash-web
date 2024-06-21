@@ -1,10 +1,11 @@
 <script>
 	import { enhance } from '$app/forms';
 	import { KICKED, SESSION } from '$lib/constants';
-	import { session, sessionData } from '$lib/store'; 
+	import { session, sessionData } from '$lib/store';
 	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
+	import posthog from 'posthog-js';
 
 	const modalStore = getModalStore();
 	const { players } = session;
@@ -19,8 +20,16 @@
 		restart the round nullifying the current progress in this round and the player will not be able
 		to return to the game.
 	</p>
-	<form action="?/global.kick" method="POST" use:enhance>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden/>
+	<form
+		action="?/global.kick"
+		method="POST"
+		use:enhance
+		on:submit={() => {
+			posthog.capture('player_kicked');
+			modalStore.close();
+		}}
+	>
+		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 		<label class="label pt-5">
 			<span class="text-lg">Player to remove</span>
 			<select class="select" name={KICKED} bind:value={playerToRemove}>
@@ -30,10 +39,7 @@
 			</select>
 		</label>
 		<div class="flex justify-center">
-			<button
-				type="submit"
-				class="btn btn-lg variant-filled-error my-2 rounded-lg"
-				on:click={() => modalStore.close()}
+			<button type="submit" class="btn btn-lg variant-filled-error my-2 rounded-lg"
 				>Remove player
 			</button>
 		</div>

@@ -5,7 +5,7 @@
 import { CORRECT, GUESSES, INTERRUPTION, ROUND_STATES, SESSION, STATE } from '$lib/constants';
 import { parseSessionRequest } from '$lib/game/helpers';
 import { getRoundScores } from '$lib/score';
-import { SessionManager } from '$lib/session';
+import { client } from '$lib/analytics.js';
 
 /**
  * Proceed after mark submission
@@ -27,7 +27,12 @@ export async function proceed(cookies, params, request) {
 	const payload = terminate
 		? getTerminationPayload(sm, correctUsers, correctPayload)
 		: getContinuationPayload(sm, correctPayload);
-	sm.sessionRef.update(payload);
+	if (terminate)
+		client.capture({
+			event: 'interruption',
+			properties: { stage: 'marking' },
+		});
+	await sm.sessionRef.update(payload);
 }
 
 /**
@@ -42,7 +47,7 @@ function getTerminationPayload(sm, correctUsers, correctPayload) {
 	return {
 		...correctPayload,
 		scoreboard: scores,
-		[`${sm.roundPath.current}/${ROUND_STATES}`]: ROUND_STATES.TALLY,
+		[`${sm.roundPath.current}/${STATE}`]: ROUND_STATES.TALLY,
 		[`${sm.roundPath.current}/${INTERRUPTION}`]: interruptionReason,
 	};
 }

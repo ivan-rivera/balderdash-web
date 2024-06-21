@@ -14,6 +14,7 @@
 	import { faGithub } from '@fortawesome/free-brands-svg-icons';
 	import Fa from 'svelte-fa';
 	import config from '$lib/config';
+	import posthog from 'posthog-js';
 
 	const drawerStore = getDrawerStore();
 	const drawerSettings = { rounded: 'rounded-xl', position: 'bottom' };
@@ -22,14 +23,20 @@
 		About: About,
 		Contact: Contact,
 		Legal: Legal,
-		Rules: Rules
+		Rules: Rules,
 	};
 </script>
 
 <div>
 	<div class="footer-row border-t-2 border-primary-500">
 		{#each Object.keys(pages) as page}
-			<a href={'#'} on:click={() => drawerStore.open({ id: page, ...drawerSettings })}>
+			<a
+				href={'#'}
+				on:click={() => {
+					posthog.capture('help_page_opened', { page });
+					drawerStore.open({ id: page, ...drawerSettings });
+				}}
+			>
 				<h5>{page}</h5>
 			</a>
 		{/each}

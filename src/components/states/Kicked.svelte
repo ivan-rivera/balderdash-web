@@ -24,7 +24,9 @@
 		You cannot rejoin the session anymore. Note that the removal mechanism allows players to remove
 		a member of their session that has become inactive and without whom the game cannot proceed
 	</p>
-	<button type="button" class="btn btn-sm variant-ringed my-10" on:click={() => returnHome(USERNAME, SESSION_ID)}
-		>Return home</button
+	<button
+		type="button"
+		class="btn btn-sm variant-ringed my-10"
+		on:click={() => returnHome(USERNAME, SESSION_ID)}>Return home</button
 	>
 </div>

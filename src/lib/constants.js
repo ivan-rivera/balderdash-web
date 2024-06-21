@@ -7,21 +7,28 @@
  * @typedef {import("$lib/types").Category} Category
  * @typedef {import("$lib/types").Guess} Guess
  * @typedef {import("$lib/types").Scoreboard} Scoreboard
+ * @typedef {import("$lib/types").Ref} Ref
  */
 
 import config from '$lib/config';
 
 export const CATEGORY = 'category';
 export const CORRECT = 'correct';
+export const CONTACT_DB = 'contact';
 export const DASHER = 'dasher';
 export const DB = 'sessions';
 export const DOUBLE_BLUFF = 'double-bluff';
+export const ENQUIRY = 'enquiry';
+export const ENQUIRIES = 'enquiries';
+export const FEEDBACK = 'feedback';
 export const FIREBASE = 'firebase';
 export const GROUP = 'group';
 export const GUESSES = 'guesses';
 export const GUESS = 'guess';
+export const IDENTITY = 'identity';
 export const INTERRUPTION = 'interruption';
 export const KICKED = 'kicked';
+export const KICKER = 'kicker';
 export const NPC = 'NPC';
 export const PROMPT = 'prompt';
 export const RESPONSE = 'response';
@@ -69,6 +76,14 @@ export const PLAYER_STATES = {
 	LOADING: 'LOADING',
 };
 
+/** @type {Object.<string, Ref>} */
+export const REFS = {
+	SESSION: 'session',
+	ROUND: 'round',
+	FEEDBACK: 'feedback',
+	ENQUIRIES: 'enquiries',
+};
+
 /** @type {SessionState} */ export const DEFAULT_SESSION_STATE = SESSION_STATES.LOADING;
 /** @type {RoundState} */ export const DEFAULT_ROUND_STATE = ROUND_STATES.LOADING;
 /** @type {Scoreboard} */ export const DEFAULT_SCOREBOARD = {};
@@ -78,12 +93,10 @@ export const PLAYER_STATES = {
 /** @type {Category} */ export const DEFAULT_CATEGORY = 'Rare words';
 /** @type {Object.<string, Guess>} */ export const DEFAULT_GUESSES = {};
 /** @type {Object.<string, string>} */ export const DEFAULT_VOTES = {};
-/** @type {string[]} */ export const DEFAULT_PLAYER_LIST = [];
 /** @type {string} */ export const DEFAULT_CREATOR = UNKNOWN;
 /** @type {string} */ export const DEFAULT_PROMPT = UNKNOWN;
 /** @type {string} */ export const DEFAULT_RESPONSE = UNKNOWN;
 /** @type {string} */ export const DEFAULT_DASHER = UNKNOWN;
-/** @type {string} */ export const DEFAULT_SESSION_ID = UNKNOWN;
 /** @type {number} */ export const DEFAULT_ROUND_NUMBER = 0;
 /** @type {number} */ export const DEFAULT_SCORE = 0;
 /** @type {boolean} */ export const DEFAULT_CUSTOM_PROMPT = false;
@@ -92,7 +105,6 @@ export const PLAYER_STATES = {
 /** @type {boolean} */ export const DEFAULT_DOUBLE_AUTOMATIC = false;
 /** @type {string} */ export const DEFAULT_INTERRUPTED = '';
 /** @type {string} */ export const DEFAULT_GROUP = 'Group 0';
-
 
 /** @type {Guess} */
 export const DEFAULT_GUESS = {

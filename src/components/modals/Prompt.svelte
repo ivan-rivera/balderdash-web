@@ -8,6 +8,7 @@
 	import config from '$lib/config';
 	import { enhance } from '$app/forms';
 	import { CATEGORY, PROMPT, RESPONSE, SESSION } from '$lib/constants';
+	import posthog from 'posthog-js';
 
 	const modalStore = getModalStore();
 	const { categories } = session;
@@ -28,8 +29,21 @@
 		You can set your own prompt-response pair. Please respect the selected category, this will allow
 		us to insert appropriate phony responses if a guesser fails to submit a response in time
 	</p>
-	<form id="custom" action="?/select.prompt.customize" method="POST" use:enhance>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden/>
+	<form
+		id="custom"
+		action="?/select.prompt.customize"
+		method="POST"
+		use:enhance
+		on:submit={() => {
+			posthog.capture('custom_prompt', {
+				category: selectedCategory,
+				prompt: customPrompt,
+				response: customResponse,
+			});
+			modalStore.close();
+		}}
+	>
+		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 		<div class="border-t-0 bg-surface-400" />
 		<label class="label">
 			<span class="text-lg">Category</span>
@@ -77,7 +91,7 @@
 				maxlength={config.customPrompt.maxResponseLength}
 				required
 			/>
-			<div class="text-right text-xs">
+			<span class="text-right text-xs">
 				{#if customResponse.length < config.customPrompt.minResponseLength}
 					<span>
 						Your {response} must contain at least {config.customPrompt.minResponseLength} characters
@@ -87,7 +101,7 @@
 						Characters: {customResponse.length} out of {config.customPrompt.maxResponseLength}
 					</span>
 				{/if}
-			</div>
+			</span>
 		</label>
 		<div class="flex justify-center w-full gap-x-5">
 			<button
@@ -99,7 +113,6 @@
 				class="btn btn-lg {buttonVariant} my-2 rounded-lg"
 				type="submit"
 				disabled={submitButtonIsDisabled}
-				on:click={() => modalStore.close()}
 				>Submit
 			</button>
 		</div>

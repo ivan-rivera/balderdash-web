@@ -1,4 +1,8 @@
 <script>
+	/**
+	 * @typedef {import("$lib/types").Guess} Guess
+	 */
+
 	import Prompter from '../parts/Prompter.svelte';
 	import { SESSION, USERNAME } from '$lib/constants';
 	import { round, sessionData } from '$lib/store';
@@ -7,9 +11,12 @@
 
 	const { dasher, guesses } = round;
 	let user = getContext(USERNAME);
-	$: userIsDasher = $dasher == user;
+	$: userIsDasher = $dasher === user;
 	const incorrectGuesses = Object.fromEntries(
-		Object.entries($guesses).filter(([_, guess]) => !guess.correct),
+		// eslint-disable-next-line no-unused-vars
+		Object.entries(/** @type {Object.<string, Guess>} */ ($guesses)).filter(
+			([_, guess]) => !guess.correct,
+		),
 	);
 	const options = Object.entries(incorrectGuesses).map((_, index) => `Group ${index + 1}`);
 	const defaultOptions = Object.entries(incorrectGuesses).reduce((acc, [user], index) => {
@@ -32,7 +39,7 @@
 		Assigning multiple guesses into a single dropdown category will merge them
 	</p>
 	<form action="?/group.continue" method="POST" use:enhance>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden/>
+		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 		{#each Object.entries(incorrectGuesses) as [user, guess]}
 			<div class="card my-5">
 				<div class="card-header text-xs">User: {user}</div>

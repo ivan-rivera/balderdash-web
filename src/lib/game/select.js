@@ -12,7 +12,7 @@ export const prompt = {
 	 */
 	customize: async (cookies, params, request) => {
 		const { form, sm } = await parseSessionRequest(cookies, params, request);
-		sm.roundRef.update({
+		await sm.roundRef.update({
 			prompt: form.get(PROMPT),
 			response: form.get(RESPONSE),
 			category: form.get(CATEGORY),
@@ -27,7 +27,7 @@ export const prompt = {
 		const { form, sm } = await parseSessionRequest(cookies, params, request);
 		const timer = Number(form.get(TIMER));
 		const time = new Date().getTime() + timer * 1000;
-		sm.roundRef.update({ time, state: ROUND_STATES.GUESS });
+		await sm.roundRef.update({ time, state: ROUND_STATES.GUESS });
 	},
 	/**
 	 * Generate a new prompt
@@ -36,7 +36,7 @@ export const prompt = {
 	randomize: async (cookies, params, request) => {
 		const { sm } = await parseSessionRequest(cookies, params, request);
 		const { category: randomCategory, pair: randomPair } = sm.randomPair;
-		sm.roundRef.update({
+		await sm.roundRef.update({
 			prompt: randomPair.prompt,
 			response: randomPair.response,
 			category: randomCategory,

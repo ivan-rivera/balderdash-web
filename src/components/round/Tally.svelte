@@ -10,7 +10,7 @@
 	import Score from '../parts/Score.svelte';
 
 	let user = getContext(USERNAME);
-	$: userIsDasher = $dasher == user;
+	$: userIsDasher = $dasher === user;
 </script>
 
 {#if $interruption}

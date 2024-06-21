@@ -14,7 +14,7 @@
 		acc[user] = guess.correct ? 1 : 0;
 		return acc;
 	}, /** @type {Object.<string, number>} */ ({}));
-	$: userIsDasher = $dasher == user;
+	$: userIsDasher = $dasher === user;
 	$: ({ response } = getCategoryWords($category));
 </script>
 
@@ -32,7 +32,7 @@
 		Only if the {response} is close enough to the official version given above, then mark it as correct
 	</p>
 	<form action="?/mark.continue" method="POST" use:enhance>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden/>
+		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 		{#each Object.entries($guesses) as [user, guess]}
 			<div class="card my-5">
 				<div class="card-header text-xs">User: {user}</div>

@@ -16,12 +16,12 @@ export default {
 		extend: {
 			minWidth: {
 				'2xs': '375px',
-				'xs': '400px',
+				xs: '400px',
 			},
 		},
 		screens: {
 			'2xs': '375px',
-			'sm': '400px',
+			sm: '400px',
 			...defaultTheme.screens,
 		},
 	},

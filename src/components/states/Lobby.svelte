@@ -9,6 +9,7 @@
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { getContext } from 'svelte';
 	import Fa from 'svelte-fa';
+	import posthog from 'posthog-js';
 
 	const toastStore = getToastStore();
 	const { players, host, limit, ais, categories } = session;
@@ -22,6 +23,7 @@
 	let invitationUrl = `${config.url}/join?id=${sessionId}`;
 	let invitationTextAndUrl = `${invitationText} URL: ${invitationUrl}`;
 	const invite = async () => {
+		posthog.capture('invite_clicked');
 		if (navigator === undefined) {
 			let error = new Error('Navigator not available');
 			handleError(toastStore, error);
@@ -101,7 +103,12 @@
 	{/if}
 	<div class="mt-5">
 		{#if username === $host}
-			<form action="?/lobby.launch" method="POST" use:enhance>
+			<form
+				action="?/lobby.launch"
+				method="POST"
+				use:enhance
+				on:submit={() => posthog.capture('game_started')}
+			>
 				<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
 				<button
 					name="start-game"

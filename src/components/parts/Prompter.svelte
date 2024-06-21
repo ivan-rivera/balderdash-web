@@ -15,9 +15,9 @@
 		custom: isCustomPrompt,
 	} = round;
 
-	export let withInfo;
+	/** @type {boolean} */ export let withInfo;
 	let user = getContext(USERNAME);
-	$: userIsDasher = $dasher == user;
+	$: userIsDasher = $dasher === user;
 </script>
 
 <div class="border box-color rounded-lg py-2 text-center">
@@ -51,6 +51,7 @@
 	</div>
 </div>
 
+<!-- eslint-disable -->
 <style>
 	.arranged {
 		@apply inline-flex gap-x-1 items-center justify-center w-full text-sm sm:text-base;

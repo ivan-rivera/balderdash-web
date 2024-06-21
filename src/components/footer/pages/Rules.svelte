@@ -1,8 +1,5 @@
 <script>
-	// TODO: add screenshots and make it prettier
-	// TODO: add double bluff logic
-	// TODO: link points to config
-	// TODO: use fancy lists
+	import { SCORE } from '$lib/score';
 </script>
 
 <div class="footer-page-pad">
@@ -33,10 +30,10 @@
 	<br class="pb-5" />
 	<p>
 		Guessers can choose to submit a "double bluff" response -- if they do so, then every vote that
-		their submission receives will gain 2 points instead of the usual 1, however, if their response
-		does not get a single vote, then they will lose 3 points. Note that if a double-bluff submission
-		is marked as "correct" by the dasher, then the double-bluff flag has no effect, it is only
-		applicable to phony answers.
+		their submission receives will gain {SCORE.DB.POSITIVE} points instead of the usual {SCORE.VOTE_RECEIVED},
+		however, if their response does not get a single vote, then they will lose {SCORE.DB.NEGATIVE} points.
+		Note that if a double-bluff submission is marked as "correct" by the dasher, then the double-bluff
+		flag has no effect, it is only applicable to phony answers.
 	</p>
 	<br class="pb-5" />
 	<p>
@@ -53,15 +50,43 @@
 	<br class="pb-5" />
 	<h3 class="h3">Scoring</h3>
 	<br class="pb-5" />
-	<ul>
+	<ol class="list">
 		<li>
-			The dasher gets <strong>3 points</strong> if no one guesses (not votes) the correct answer
+			<span>1.</span>
+			<span class="flex-auto"
+				>The dasher gets <strong>{SCORE.DASHER.UNGUESSED} points</strong> if no one guesses (not votes)
+				the correct answer</span
+			>
 		</li>
-		<li>Players who submit responses close to the true answer get <strong>3 points</strong></li>
 		<li>
-			Players who find the correct answer during the voting stage get <strong>2 points</strong>
+			<span>2.</span>
+			<span class="flex-auto"
+				>Players who submit responses close to the true answer get <strong
+					>{SCORE.CORRECT_GUESS} points</strong
+				></span
+			>
 		</li>
-		<li>Players get <strong>1 point</strong> per vote that their phony answers receive</li>
-	</ul>
+		<li>
+			<span>3.</span>
+			<span class="flex-auto"
+				>Players who find the correct answer during the voting stage get <strong
+					>{SCORE.CORRECT_VOTE} points</strong
+				></span
+			>
+		</li>
+		<li>
+			<span>4.</span>
+			<span class="flex-auto"
+				>Players get <strong>{SCORE.VOTE_RECEIVED} point</strong> per vote that their phony answers receive</span
+			>
+		</li>
+		<li>
+			<span>5.</span>
+			<span class="flex-auto"
+				>Double bluff rules apply as outlined above: <strong>{SCORE.DB.POSITIVE}</strong> for every
+				vote, <strong>{SCORE.DB.NEGATIVE}</strong> if no votes received</span
+			>
+		</li>
+	</ol>
 	<br class="pb-5" />
 </div>

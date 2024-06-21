@@ -56,12 +56,26 @@ export function handleError(store, error) {
 }
 
 /**
+ * Handle info
+ * @param {ToastStore} store
+ * @param {string} message
+ */
+export function handleInfo(store, message) {
+	store.trigger({
+		message,
+		timeout: config.toastTimeout,
+		background: 'variant-filled-success',
+	});
+}
+
+/**
  * Return back home and reset cookies
- * @param {string} username - user name
+ * @param {string} username - username
  * @param {string} sessionId - session ID
  */
 export function returnHome(username, sessionId) {
 	document.cookie = `${username}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'`;
 	document.cookie = `${sessionId}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'`;
+	localStorage.clear();
 	goto('/');
 }

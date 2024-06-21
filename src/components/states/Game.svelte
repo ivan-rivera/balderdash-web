@@ -61,6 +61,7 @@
 	</div>
 </div>
 
+<!-- eslint-disable -->
 <style>
 	.highlighted {
 		@apply text-primary-400 font-bold;

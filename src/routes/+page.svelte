@@ -25,7 +25,7 @@
 			class="variant-filled action-button"
 			on:click={() => goto('/join')}>Join Game</button
 		>
-		{#if data.activeSessionId != ''}
+		{#if data.activeSessionId !== ''}
 			<button
 				name="resume-game"
 				type="button"

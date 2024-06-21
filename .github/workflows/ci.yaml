@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+      - name: Install dependencies
+        run: bun install
+      - name: Check packages
+        run: bun prepare
+      - name: Run linter
+        run: bun lint
+      - name: Run unit tests
+        run: bun test:lib
+      - name: Run integration tests
+        run: bun test:integration
+      - name: Build
+        run: bun build

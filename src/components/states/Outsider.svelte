@@ -2,6 +2,9 @@
 	import { goto } from '$app/navigation';
 	import lightImage from '$lib/assets/not-your-session-light.svg';
 	import darkImage from '$lib/assets/not-your-session-dark.svg';
+	import { onMount } from 'svelte';
+	import posthog from 'posthog-js';
+	onMount(() => posthog.capture('error', { type: 'outsider' }));
 </script>
 
 <div class="text-center">

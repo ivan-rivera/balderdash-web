@@ -1,5 +1,5 @@
 <script>
-	import { handleError } from '$lib/utils'; 
+	import { handleError } from '$lib/utils';
 	import { signIn } from '$lib/firebase/auth';
 	import { FIREBASE } from '$lib/constants';
 	import { firebaseApp } from '$lib/firebase/client';
@@ -21,8 +21,8 @@
 	onMount(
 		async () =>
 			await signIn(firebaseApp)
-			.then((cred) => document.cookie=`uid=${cred}`)
-			.catch((error) => handleError(toastStore, new Error(error))),
+				.then((cred) => (document.cookie = `uid=${cred}`))
+				.catch((error) => handleError(toastStore, new Error(error))),
 	);
 </script>
 

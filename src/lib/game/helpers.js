@@ -23,7 +23,6 @@ export async function parseSessionRequest(cookies, params, request) {
 	return { form, sm };
 }
 
-
 /**
  * Generate incorrect NPC guesses
  * @param {number} count - number of guesses to generate
@@ -31,9 +30,9 @@ export async function parseSessionRequest(cookies, params, request) {
  * @returns {Object.<string, Guess>} - generated guesses
  */
 export function generateAiGuesses(count, generator) {
-    const responses = new Set();
-    /** @type {Object.<string, Guess>}*/ const guesses = {};
-    for (let i = 0; i < count; i++) {
+	const responses = new Set();
+	/** @type {Object.<string, Guess>}*/ const guesses = {};
+	for (let i = 0; i < count; i++) {
 		let value;
 		do {
 			value = generator();
@@ -47,5 +46,5 @@ export function generateAiGuesses(count, generator) {
 			automatic: true,
 		};
 	}
-    return guesses;
+	return guesses;
 }
