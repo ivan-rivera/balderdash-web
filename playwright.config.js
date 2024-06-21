@@ -6,7 +6,7 @@ const config = {
 	},
 	testDir: 'tests',
 	testMatch: /(.+\.)?(test|spec)\.[jt]s/,
-	// timeout: 3000,
+	timeout: 3000,
 	use: {
 		ignoreHTTPSErrors: true,
 	},
