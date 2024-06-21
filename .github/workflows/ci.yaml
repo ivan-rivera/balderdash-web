@@ -47,6 +47,8 @@ jobs:
         run: bun install
       - name: Check packages
         run: bun prepare
+      - name: Install Playwright dependencies
+        run: bun playwright install --with-deps
       - name: Run linter
         run: bun lint
       - name: Run unit tests
