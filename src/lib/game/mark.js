@@ -3,7 +3,7 @@
  */
 
 import { CORRECT, GUESSES, INTERRUPTION, ROUND_STATES, SESSION, STATE } from '$lib/constants';
-import { parseSessionRequest } from '$lib/game/helpers';
+import { generateAiGuesses, parseSessionRequest } from '$lib/game/helpers';
 import { getRoundScores } from '$lib/score';
 import { client } from '$lib/analytics.js';
 
@@ -21,12 +21,15 @@ export async function proceed(cookies, params, request) {
 		{},
 	);
 	const fewerThanTwoIncorrectGuesses = correctUsers.length >= activeGuesses - 1;
+	const allGuessedCorrectly = correctUsers.length === activeGuesses;
+	const incorrectCount = submissions.length - correctUsers.length;
 	const singleSubmission = submissions.length === 1;
 	const aisDisabled = sm.session.ais === 0;
-	const terminate = (fewerThanTwoIncorrectGuesses || singleSubmission) && aisDisabled;
+	const terminate =
+		allGuessedCorrectly || ((fewerThanTwoIncorrectGuesses || singleSubmission) && aisDisabled);
 	const payload = terminate
 		? getTerminationPayload(sm, correctUsers, correctPayload)
-		: getContinuationPayload(sm, correctPayload);
+		: getContinuationPayload(sm, correctPayload, incorrectCount);
 	if (terminate)
 		client.capture({
 			event: 'interruption',
@@ -56,7 +59,24 @@ function getTerminationPayload(sm, correctUsers, correctPayload) {
  * Get continuation payload
  * @param {SessionManager} sm - session manager
  * @param {Object<string, any>} correctPayload - correct payload
+ * @param {number} incorrectCount - number of incorrect guesses
  */
-function getContinuationPayload(sm, correctPayload) {
-	return { ...correctPayload, [`${sm.roundPath.current}/${STATE}`]: ROUND_STATES.GROUP };
+function getContinuationPayload(sm, correctPayload, incorrectCount) {
+	let aiGuesses = {};
+	const nextState = incorrectCount === 1 ? ROUND_STATES.VOTE : ROUND_STATES.GROUP;
+	if (nextState === ROUND_STATES.VOTE) {
+		const phonyResponses = generateAiGuesses(sm.session.ais, () => sm.phonyResponse);
+		aiGuesses = Object.entries(phonyResponses).reduce((acc, [key, value]) => {
+			return {
+				...acc,
+				[`${sm.roundPath.current}/${key}`]: value,
+			};
+		}, {});
+	}
+	return {
+		...correctPayload,
+		...aiGuesses,
+		[`${sm.roundPath.current}/${STATE}`]: nextState,
+		[`${sm.roundPath.current}/${STATE}`]: nextState,
+	};
 }

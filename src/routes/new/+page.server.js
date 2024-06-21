@@ -12,7 +12,7 @@ import {
 	USERNAME,
 } from '$lib/constants';
 import { createNewSessionId, dbRef, validateToken } from '$lib/firebase/server';
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { enquire } from '$lib/contact.js';
 import { client } from '$lib/analytics.js';
 
@@ -32,6 +32,9 @@ export const actions = {
 				return data.get(converted) === 'on';
 			})
 			.map((category) => /** @type {Category} */ (category.name));
+		if (categories.length === 0) {
+			return fail(400, { success: false, message: 'Please select at least one category' });
+		}
 		const newSessionState = {
 			...INITIAL_SESSION_STATE,
 			state: SESSION_STATES.INITIATED,

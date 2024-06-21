@@ -9,7 +9,6 @@
 	import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import Entry from '../../components/forms/Entry.svelte';
-
 	let username = '';
 	let categories = config.categories;
 	let roundsChoice = config.rounds.min;

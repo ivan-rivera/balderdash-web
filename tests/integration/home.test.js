@@ -4,13 +4,8 @@
  * the button show up
  */
 
-// TODO: add resume button
-
 import { test, expect } from '@playwright/test';
-import config from '../../playwright.config';
-
-// @ts-ignore
-const baseUrl = `https://localhost:${config.webServer.port}`;
+import { baseUrl } from './utils';
 
 test.beforeEach(async ({ page }) => {
 	await page.goto(baseUrl);

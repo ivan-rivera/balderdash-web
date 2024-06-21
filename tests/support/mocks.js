@@ -11,7 +11,15 @@ import { contactRef } from '$lib/firebase/server.js';
 export function createParseSessionRequestMock() {
 	vi.mock('$lib/game/helpers', async () => {
 		return {
-			generateAiGuesses: () => ({ [`${GUESSES}/NPC-1`]: 'NPC 1' }),
+			generateAiGuesses: () => ({
+				[`${GUESSES}/NPC-0`]: {
+					response: 'NPC 0',
+					correct: false,
+					double: false,
+					group: `NPC 0`,
+					automatic: true,
+				},
+			}),
 			parseSessionRequest: vi.fn(),
 		};
 	});
