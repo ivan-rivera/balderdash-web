@@ -19,6 +19,7 @@ export async function parseSessionRequest(cookies, params, request) {
 	validateToken(cookies);
 	const form = await request.formData();
 	const session = JSON.parse(String(form.get('session')) || '{}');
+	console.log('session', session);
 	const sm = new SessionManager(session, params.sessionId);
 	return { form, sm };
 }

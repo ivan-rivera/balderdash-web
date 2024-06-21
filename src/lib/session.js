@@ -87,6 +87,7 @@ export class SessionManager {
 	/** @returns {Promise<{category: Category, pair: {prompt: string, response: string}}>} - a random prompt-response pair */
 	async randomPair() {
 		const vocabs = await loadVocabs();
+		console.log(this.session);
 		const randomCategory = this.randomCategory;
 		const vocab = vocabs.find((vocab) => vocab.category === randomCategory)?.vocab;
 		return { category: randomCategory, pair: getRandomPair(vocab) };
