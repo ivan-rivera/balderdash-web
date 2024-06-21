@@ -23,7 +23,7 @@ export async function proceed(cookies, params, request) {
 			? { state: SESSION_STATES.FINISHED }
 			: {
 					current: admin.database.ServerValue.increment(1),
-					[sm.roundPath.next]: sm.nextRoundPayload,
+					[sm.roundPath.next]: await sm.nextRoundPayload(),
 				};
 	await sm.sessionRef.update(payload);
 }

@@ -10,7 +10,7 @@
 
 import { DEFAULT_CUSTOM_PROMPT, ROUNDS, ROUND_STATES, SESSION_STATES } from '$lib/constants';
 import config from '$lib/config';
-import { getRandomPair, getPhonyResponse, vocabs } from '$lib/vocab';
+import { getRandomPair, getPhonyResponse, loadVocabs } from '$lib/vocab';
 import { dbRef, getSession } from '$lib/firebase/server';
 import admin from 'firebase-admin';
 
@@ -38,7 +38,7 @@ export class SessionManager {
 		await this.sessionRef.update({
 			state: SESSION_STATES.STARTED,
 			current: admin.database.ServerValue.increment(1),
-			[this.roundPath.next]: this.nextRoundPayload,
+			[this.roundPath.next]: await this.nextRoundPayload(),
 		});
 	}
 
@@ -52,8 +52,8 @@ export class SessionManager {
 		return this.session.categories[Math.floor(Math.random() * this.session.categories.length)];
 	}
 
-	get nextRoundPayload() {
-		const { category: randomCategory, pair: randomPair } = this.randomPair;
+	async nextRoundPayload() {
+		const { category: randomCategory, pair: randomPair } = await this.randomPair();
 		return {
 			dasher: this.getNextDasher(),
 			prompt: randomPair.prompt,
@@ -84,8 +84,9 @@ export class SessionManager {
 		};
 	}
 
-	/** @returns {{category: Category, pair: {prompt: string, response: string}}} - a random prompt-response pair */
-	get randomPair() {
+	/** @returns {Promise<{category: Category, pair: {prompt: string, response: string}}>} - a random prompt-response pair */
+	async randomPair() {
+		const vocabs = await loadVocabs();
 		const randomCategory = this.randomCategory;
 		const vocab = vocabs.find((vocab) => vocab.category === randomCategory)?.vocab;
 		return { category: randomCategory, pair: getRandomPair(vocab) };
@@ -93,9 +94,10 @@ export class SessionManager {
 
 	/**
 	 * Get a phony response to the current prompt
-	 * @returns {string} - a phony response to the prompt
+	 * @returns {Promise<string>} - a phony response to the prompt
 	 */
-	get phonyResponse() {
+	async phonyResponse() {
+		const vocabs = await loadVocabs();
 		const vocab = vocabs.find((vocab) => vocab.category === this.round.category)?.vocab;
 		return getPhonyResponse(vocab, this.round.prompt);
 	}

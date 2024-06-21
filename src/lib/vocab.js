@@ -4,6 +4,8 @@
 
 import config from '$lib/config';
 
+let cache = {};
+
 /**
  * Load vocabulary for a given category
  * @param {string} source - source of the category
@@ -41,23 +43,14 @@ export function getPhonyResponse(vocab, truePrompt) {
  * @returns {Promise<Object.<Category, Object.<string, string>>[]>}
  */
 export async function loadVocabs() {
+	if (cache.vocabs) return cache.vocabs;
 	const vocabPromises = config.categories.map(async (category) => {
 		return {
 			category: category.name,
 			vocab: await loadVocab(category.source),
 		};
 	});
-	return await Promise.all(vocabPromises);
-}
-
-/**
- * Category names and their vocabularies
- */
-export let vocabs;
-(async function () {
-	vocabs = await loadVocabs();
-})();
-
-export async function refreshVocabs() {
-	vocabs = await loadVocabs();
+	const vocabs = await Promise.all(vocabPromises);
+	cache.vocabs = vocabs;
+	return vocabs;
 }

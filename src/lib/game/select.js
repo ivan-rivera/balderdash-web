@@ -35,7 +35,7 @@ export const prompt = {
 	 */
 	randomize: async (cookies, params, request) => {
 		const { sm } = await parseSessionRequest(cookies, params, request);
-		const { category: randomCategory, pair: randomPair } = sm.randomPair;
+		const { category: randomCategory, pair: randomPair } = await sm.randomPair();
 		await sm.roundRef.update({
 			prompt: randomPair.prompt,
 			response: randomPair.response,

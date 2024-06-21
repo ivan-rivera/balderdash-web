@@ -29,7 +29,7 @@ export async function proceed(cookies, params, request) {
 		allGuessedCorrectly || ((fewerThanTwoIncorrectGuesses || singleSubmission) && aisDisabled);
 	const payload = terminate
 		? getTerminationPayload(sm, correctUsers, correctPayload)
-		: getContinuationPayload(sm, correctPayload, incorrectCount);
+		: await getContinuationPayload(sm, correctPayload, incorrectCount);
 	if (terminate)
 		client.capture({
 			event: 'interruption',
@@ -61,11 +61,11 @@ function getTerminationPayload(sm, correctUsers, correctPayload) {
  * @param {Object<string, any>} correctPayload - correct payload
  * @param {number} incorrectCount - number of incorrect guesses
  */
-function getContinuationPayload(sm, correctPayload, incorrectCount) {
+async function getContinuationPayload(sm, correctPayload, incorrectCount) {
 	let aiGuesses = {};
 	const nextState = incorrectCount === 1 ? ROUND_STATES.VOTE : ROUND_STATES.GROUP;
 	if (nextState === ROUND_STATES.VOTE) {
-		const phonyResponses = generateAiGuesses(sm.session.ais, () => sm.phonyResponse);
+		const phonyResponses = await generateAiGuesses(sm.session.ais, async () => sm.phonyResponse);
 		aiGuesses = Object.entries(phonyResponses).reduce((acc, [key, value]) => {
 			return {
 				...acc,

@@ -18,7 +18,7 @@ export async function kick(cookies, params, request) {
 		kicked: { [kicked]: kicker },
 		[`${SCOREBOARD}/${kicked}`]: null,
 		[`${ROUNDS}/${sm.session.current}`]: {
-			...sm.nextRoundPayload,
+			...(await sm.nextRoundPayload()),
 			dasher: sm.getNextDasher([kicked]),
 		},
 	};

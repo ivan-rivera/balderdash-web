@@ -21,7 +21,9 @@ export async function proceed(cookies, params, request) {
 	);
 	const uniqueGroupCount = new Set(Object.values(guessGroupPayload)).size;
 	const aiGuesses =
-		sm.session.ais > 0 ? generateAiGuesses(sm.session.ais, () => sm.phonyResponse) : {};
+		sm.session.ais > 0
+			? await generateAiGuesses(sm.session.ais, async () => await sm.phonyResponse())
+			: {};
 	const state =
 		sm.session.ais === 0 && uniqueGroupCount === 1 ? ROUND_STATES.TALLY : ROUND_STATES.VOTE;
 	const interruption =

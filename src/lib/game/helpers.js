@@ -26,16 +26,16 @@ export async function parseSessionRequest(cookies, params, request) {
 /**
  * Generate incorrect NPC guesses
  * @param {number} count - number of guesses to generate
- * @param {function(): string} generator - guess generator function
- * @returns {Object.<string, Guess>} - generated guesses
+ * @param {function(): Promise<string>} generator - guess generator function
+ * @returns {Promise<Object.<string, Guess>>} - generated guesses
  */
-export function generateAiGuesses(count, generator) {
+export async function generateAiGuesses(count, generator) {
 	const responses = new Set();
 	/** @type {Object.<string, Guess>}*/ const guesses = {};
 	for (let i = 0; i < count; i++) {
 		let value;
 		do {
-			value = generator();
+			value = await generator();
 		} while (responses.has(value));
 		responses.add(value);
 		guesses[`${GUESSES}/${NPC}-${i}`] = {
