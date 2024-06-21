@@ -56,4 +56,4 @@ jobs:
       - name: Run integration tests
         run: bun test:integration
       - name: Build
-        run: bun build
+        run: bun run build
