@@ -48,7 +48,13 @@ describe('grouping responses', () => {
 		);
 		await proceed(mockCookies, mockParams, mockRequest);
 		expect(mockUpdate).toHaveBeenCalledWith({
-			'guesses/NPC-1': 'NPC 1',
+			'guesses/NPC-0': {
+				response: 'NPC 0',
+				correct: false,
+				double: false,
+				group: `NPC 0`,
+				automatic: true,
+			},
 			'guesses/P2/group': 'Group 1',
 			'guesses/P3/group': 'Group 1',
 			state: ROUND_STATES.VOTE,
