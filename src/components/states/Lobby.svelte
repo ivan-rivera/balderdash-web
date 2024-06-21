@@ -10,7 +10,6 @@
 	import { getContext } from 'svelte';
 	import Fa from 'svelte-fa';
 	import posthog from 'posthog-js';
-	console.log(JSON.stringify($sessionData));
 
 	const toastStore = getToastStore();
 	const { players, host, limit, ais, categories } = session;
@@ -58,6 +57,7 @@
 	};
 </script>
 
+{JSON.stringify($sessionData)}
 <div class="text-center">
 	<h1 class="h1 mb-5">Lobby</h1>
 	<div class="border-2 border-surface-400 rounded-lg p-5">
