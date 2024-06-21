@@ -1,13 +1,11 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { createParseSessionRequestMock, setupMocks } from '../../support/mocks.js';
-import { refreshVocabs } from '$lib/vocab.js';
 import { REFS, ROUND_STATES, SESSION_STATES } from '$lib/constants.js';
 import { proceed } from '$lib/game/tally';
 import { dummySessionManager } from '../../support/data.js';
 
 beforeAll(async () => {
 	createParseSessionRequestMock();
-	await refreshVocabs();
 });
 
 describe('tally stage', () => {

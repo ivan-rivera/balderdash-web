@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { createParseSessionRequestMock, setupMocks } from '../../support/mocks.js';
-import { refreshVocabs } from '$lib/vocab.js';
 import { REFS, ROUND_STATES } from '$lib/constants.js';
 import { proceed } from '$lib/game/mark';
 import { dummySessionManager } from '../../support/data.js';
@@ -8,7 +7,6 @@ import { SCORE } from '$lib/score.js';
 
 beforeAll(async () => {
 	createParseSessionRequestMock();
-	await refreshVocabs();
 });
 
 describe('mark responses', () => {

@@ -1,12 +1,10 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { createParseSessionRequestMock, setupMocks } from '../../support/mocks.js';
-import { refreshVocabs } from '$lib/vocab';
 import { REFS, ROUND_STATES } from '$lib/constants';
 import { prompt } from '$lib/game/select';
 
 beforeAll(async () => {
 	createParseSessionRequestMock();
-	await refreshVocabs();
 });
 
 describe('selecting stage', () => {

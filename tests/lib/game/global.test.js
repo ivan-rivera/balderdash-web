@@ -6,13 +6,11 @@
 import { KICKED, KICKER, ROUND_STATES } from '$lib/constants';
 import { createParseSessionRequestMock, setupMocks } from '../../support/mocks.js';
 import { describe, it, expect, beforeAll } from 'vitest';
-import { refreshVocabs } from '$lib/vocab.js';
 import { feedback, kick } from '$lib/game/global';
 import { REFS } from '$lib/constants';
 
 beforeAll(async () => {
 	createParseSessionRequestMock();
-	await refreshVocabs();
 });
 
 describe('globally available actions', () => {

@@ -2,12 +2,10 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { createParseSessionRequestMock, setupMocks } from '../../support/mocks.js';
 import { REFS, ROUND_STATES, SESSION_STATES } from '$lib/constants.js';
 import { launch } from '$lib/game/lobby.js';
-import { refreshVocabs } from '$lib/vocab.js';
 import { dummySessionManager } from '../../support/data.js';
 
 beforeAll(async () => {
 	createParseSessionRequestMock();
-	await refreshVocabs();
 });
 
 describe('lobby', () => {

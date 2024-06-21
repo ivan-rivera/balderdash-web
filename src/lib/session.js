@@ -25,15 +25,6 @@ export class SessionManager {
 		this.sessionRef = dbRef.child(id);
 	}
 
-	/**
-	 * Create a session manager instance from session ID
-	 * @param {string} id - session ID
-	 * @returns
-	 */
-	static async fromId(id) {
-		return new SessionManager(await getSession(id), id);
-	}
-
 	async launch() {
 		await this.sessionRef.update({
 			state: SESSION_STATES.STARTED,
@@ -87,7 +78,6 @@ export class SessionManager {
 	/** @returns {Promise<{category: Category, pair: {prompt: string, response: string}}>} - a random prompt-response pair */
 	async randomPair() {
 		const vocabs = await loadVocabs();
-		console.log(this.session);
 		const randomCategory = this.randomCategory;
 		const vocab = vocabs.find((vocab) => vocab.category === randomCategory)?.vocab;
 		return { category: randomCategory, pair: getRandomPair(vocab) };

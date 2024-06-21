@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { createParseSessionRequestMock, setupMocks } from '../../support/mocks.js';
-import { refreshVocabs } from '$lib/vocab.js';
 import {
 	DEFAULT_GUESS,
 	DOUBLE_BLUFF,
@@ -17,7 +16,6 @@ import { dummySessionManager } from '../../support/data.js';
 
 beforeAll(async () => {
 	createParseSessionRequestMock();
-	await refreshVocabs();
 });
 
 describe('guessing', () => {
