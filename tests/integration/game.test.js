@@ -48,4 +48,4 @@ test('Game flow without NPCs', async () => {
 	await browser.close();
 });
 
-test('Game flow with NPCs', async ({ browser }) => {});
+test('Game flow with NPCs', async () => {});
