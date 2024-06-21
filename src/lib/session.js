@@ -11,7 +11,7 @@
 import { DEFAULT_CUSTOM_PROMPT, ROUNDS, ROUND_STATES, SESSION_STATES } from '$lib/constants';
 import config from '$lib/config';
 import { getRandomPair, getPhonyResponse, loadVocabs } from '$lib/vocab';
-import { dbRef, getSession } from '$lib/firebase/server';
+import { dbRef } from '$lib/firebase/server';
 import admin from 'firebase-admin';
 
 export class SessionManager {

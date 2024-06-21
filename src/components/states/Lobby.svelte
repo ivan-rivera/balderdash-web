@@ -10,6 +10,7 @@
 	import { getContext } from 'svelte';
 	import Fa from 'svelte-fa';
 	import posthog from 'posthog-js';
+	console.log(JSON.stringify($sessionData));
 
 	const toastStore = getToastStore();
 	const { players, host, limit, ais, categories } = session;
