@@ -23,7 +23,7 @@
 	const sessionRef = child(ref(getDatabase(getContext(FIREBASE)), DB), $page.params.sessionId);
 	sessionData.set(data.session);
 	setContext(USERNAME, data.username);
-	onMount(async () => {
+	onMount(() => {
 		onValue(sessionRef, (snapshot) => {
 			sessionData.set(snapshot.val());
 		});

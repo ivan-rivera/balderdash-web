@@ -38,7 +38,7 @@ export default {
 			name: 'Rare words',
 			description: 'Guess the definition',
 			source:
-				'https://raw.githubusercontent.com/balderdash-app/balderdash-web/main/static/dev/words.json',
+				'https://raw.githubusercontent.com/ivan-rivera/balderdash-web/main/static/dev/words.json',
 			enabled: true,
 			promptName: 'word',
 			responseName: 'definition',
@@ -47,7 +47,7 @@ export default {
 			name: 'Scientific names',
 			description: 'Guess the common name',
 			source:
-				'https://raw.githubusercontent.com/balderdash-app/balderdash-web/main/static/dev/latin.json',
+				'https://raw.githubusercontent.com/ivan-rivera/balderdash-web/main/static/dev/latin.json',
 			enabled: true,
 			promptName: 'Latin name',
 			responseName: 'common name',
@@ -56,7 +56,7 @@ export default {
 			name: 'Film taglines',
 			description: 'Guess the tagline',
 			source:
-				'https://raw.githubusercontent.com/balderdash-app/balderdash-web/main/static/dev/taglines.json',
+				'https://raw.githubusercontent.com/ivan-rivera/balderdash-web/main/static/dev/taglines.json',
 			enabled: true,
 			promptName: 'film title',
 			responseName: 'tagline',
@@ -65,7 +65,7 @@ export default {
 			name: 'Famous people',
 			description: 'Guess why they are famous',
 			source:
-				'https://raw.githubusercontent.com/balderdash-app/balderdash-web/main/static/dev/people.json',
+				'https://raw.githubusercontent.com/ivan-rivera/balderdash-web/main/static/dev/people.json',
 			enabled: true,
 			promptName: 'person',
 			responseName: 'claim to fame',
