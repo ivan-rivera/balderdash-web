@@ -34,7 +34,7 @@ This app is built using SvelteKit and Firebase. All contributions are wholeheart
 
 - Submit an issue
 - Submit a pull request with an improvement (I suggest you start with an issue first to discuss the change)
-- Add a new word category into this repository (TODO)
+- Add a new word category into this repository (To be added later)
 - Play the game and provide feedback
 
 If you need to run this app locally, then first run `bun install` (I used bun but you can use NPM or whenever you prefer), then `bun dev` will start the server. To run tests use `bun test:lib`. Note that you will need to set up a Firebase project (and most likely a PostHog project but don't worry -- both are entirely free) and add the necessary environment variables (inside .env) to run the app. To see the environment variables you'll need checkout `.github/workflows/ci.yaml` and `src/lib/firebase/server.js`.
