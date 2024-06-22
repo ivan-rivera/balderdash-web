@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import config from '$lib/config';
 	import { SESSION, USERNAME } from '$lib/constants';
-	import { session, sessionData } from '$lib/store';
+	import { session } from '$lib/store';
 	import { getButtonVariant, handleError } from '$lib/utils';
 	import { faCheckCircle, faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import { getToastStore } from '@skeletonlabs/skeleton';
@@ -12,7 +12,7 @@
 	import posthog from 'posthog-js';
 
 	const toastStore = getToastStore();
-	const { players, host, limit, ais, categories } = session;
+	const { players, host, limit, ais, categories, data } = session;
 
 	$: isButtonDisabled = $players.length < config.minPlayersRequired;
 	$: buttonVariant = getButtonVariant(isButtonDisabled);
@@ -57,7 +57,11 @@
 	};
 </script>
 
-{JSON.stringify($sessionData)}
+{#if $data === undefined}
+	<p>No data!</p>
+{:else}
+	{JSON.stringify($data)}
+{/if}
 <div class="text-center">
 	<h1 class="h1 mb-5">Lobby</h1>
 	<div class="border-2 border-surface-400 rounded-lg p-5">
@@ -110,7 +114,7 @@
 				use:enhance
 				on:submit={() => posthog.capture('game_started')}
 			>
-				<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+				<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 				<button
 					name="start-game"
 					type="submit"

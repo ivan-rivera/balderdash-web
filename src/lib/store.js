@@ -14,6 +14,11 @@ const currentRound = derived(
 );
 
 export const session = {
+	data: derived(
+		sessionData,
+		/** @param {Session} $data */
+		($data) => $data,
+	),
 	state: derived(
 		sessionData,
 		/** @param {Session} $data */
