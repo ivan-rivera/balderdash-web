@@ -5,7 +5,7 @@
  */
 
 import { GUESSES, NPC } from '$lib/constants';
-import { validateToken } from '$lib/firebase/server';
+import { getSession, validateToken } from '$lib/firebase/server';
 import { SessionManager } from '$lib/session';
 
 /**
@@ -18,8 +18,8 @@ import { SessionManager } from '$lib/session';
 export async function parseSessionRequest(cookies, params, request) {
 	validateToken(cookies);
 	const form = await request.formData();
-	const session = JSON.parse(String(form.get('session')) || '{}');
-	console.log('session', session);
+	let sf = form.get('session');
+	const session = sf ? JSON.parse(String(sf)) : await getSession(params.sessionId);
 	const sm = new SessionManager(session, params.sessionId);
 	return { form, sm };
 }
