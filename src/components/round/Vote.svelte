@@ -6,7 +6,7 @@
 	import Prompter from '../parts/Prompter.svelte';
 	import { CORRECT, DASHER, GUESSES, SCOREBOARD, SESSION, USERNAME, VOTES } from '$lib/constants';
 	import { getCategoryWords } from '$lib/utils';
-	import { session, round, sessionData } from '$lib/store';
+	import { session, round } from '$lib/store';
 	import { getContext } from 'svelte';
 	import { faCircleExclamation, faDotCircle } from '@fortawesome/free-solid-svg-icons';
 	import { shuffle } from '$lib/utils';
@@ -14,7 +14,7 @@
 	import Fa from 'svelte-fa';
 	import { enhance } from '$app/forms';
 
-	const { players, scoreboard } = session;
+	const { players, scoreboard, data } = session;
 	const { dasher, guesses, votes, category, response: trueResponse } = round;
 	let user = getContext(USERNAME);
 	$: ({ prompt } = getCategoryWords($category));
@@ -47,7 +47,7 @@
 	let selectedResponse = shuffledGuesses.find(({ group }) => group === $votes[user])?.index ?? -1;
 	let userWasCorrect = correctGuessers.includes(user);
 	let doublesExist = Object.values(guessSpecs).some((g) => g.double);
-	$: aisExist = $sessionData.ais > 0;
+	$: aisExist = $data.ais > 0;
 	$: selectedGroup = shuffledGuesses.find(({ index }) => index === selectedResponse);
 	$: stillVoting = $players.filter(
 		(player) => !(player in $votes) && player !== $dasher && !correctGuessers.includes(player),
@@ -79,7 +79,7 @@
 	<span class="text-xs">Every player will see responses in a different order!</span>
 </span>
 <form action="?/vote.cast" method="POST" use:enhance>
-	<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+	<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 	<RadioGroup
 		background=""
 		border=""
@@ -131,7 +131,7 @@
 </form>
 {#if userIsDasher && stillVoting.length === 0}
 	<form action="?/vote.continue" method="POST">
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+		<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 		<input name={VOTES} value={JSON.stringify($votes)} type="text" hidden />
 		<input name={GUESSES} value={JSON.stringify(guessSpecs)} type="text" hidden />
 		<input name={CORRECT} value={JSON.stringify(correctGuessers)} type="text" hidden />

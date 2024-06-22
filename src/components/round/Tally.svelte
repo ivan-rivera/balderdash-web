@@ -5,8 +5,9 @@
 
 	import { getContext } from 'svelte';
 	import { SESSION, USERNAME } from '$lib/constants';
-	import { round, sessionData } from '$lib/store';
+	import { round, session } from '$lib/store';
 	const { dasher, interruption } = round;
+	const { data } = session;
 	import Score from '../parts/Score.svelte';
 
 	let user = getContext(USERNAME);
@@ -22,7 +23,7 @@
 
 {#if userIsDasher}
 	<form action="?/tally.continue" method="POST">
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+		<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 		<button class="mt-5 btn variant-filled btn-lg rounded-lg w-full" type="submit">Continue</button>
 	</form>
 {:else}

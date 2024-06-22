@@ -4,7 +4,7 @@
 	 */
 
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import { round, sessionData } from '$lib/store';
+	import { round, session } from '$lib/store';
 	import config from '$lib/config';
 	import { getCategoryWords } from '$lib/utils';
 	import { enhance } from '$app/forms';
@@ -13,6 +13,7 @@
 	import Prompter from '../parts/Prompter.svelte';
 
 	const modalStore = getModalStore();
+	const { data } = session;
 	const { dasher, category, prompt: roundPrompt, response: roundResponse } = round;
 
 	let user = getContext(USERNAME);
@@ -61,11 +62,11 @@
 			<input type="text" name={TIMER} bind:value={timer} hidden />
 			<input type="text" name={PROMPT} value={$roundPrompt} hidden />
 			<input type="text" name={RESPONSE} value={$roundResponse} hidden />
-			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+			<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 			<button type="submit" class="btn variant-filled selection-button">Accept</button>
 		</form>
 		<form class="button-array" action="?/select.prompt.randomize" method="POST" use:enhance>
-			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+			<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 			<button type="submit" class="btn variant-filled selection-button">New</button>
 		</form>
 		<div class="button-array">

@@ -4,14 +4,14 @@
 	 */
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import { getButtonVariant, getCategoryWords, toTitleCase } from '$lib/utils';
-	import { session, sessionData } from '$lib/store';
+	import { session } from '$lib/store';
 	import config from '$lib/config';
 	import { enhance } from '$app/forms';
 	import { CATEGORY, PROMPT, RESPONSE, SESSION } from '$lib/constants';
 	import posthog from 'posthog-js';
 
 	const modalStore = getModalStore();
-	const { categories } = session;
+	const { categories, data } = session;
 
 	let selectedCategory = $categories[0];
 	let customPrompt = '';
@@ -43,7 +43,7 @@
 			modalStore.close();
 		}}
 	>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+		<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 		<div class="border-t-0 bg-surface-400" />
 		<label class="label">
 			<span class="text-lg">Category</span>

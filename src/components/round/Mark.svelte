@@ -1,7 +1,7 @@
 <script>
 	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 	import { SESSION, USERNAME } from '$lib/constants';
-	import { round, sessionData } from '$lib/store';
+	import { round, session } from '$lib/store';
 	import { getContext } from 'svelte';
 	import { getCategoryWords } from '$lib/utils';
 	import Prompter from '../parts/Prompter.svelte';
@@ -9,6 +9,7 @@
 	import { faXmarkCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 	import { enhance } from '$app/forms';
 	const { dasher, guesses, category } = round;
+	const { data } = session;
 	let user = getContext(USERNAME);
 	const userSelections = Object.entries($guesses).reduce((acc, [user, guess]) => {
 		acc[user] = guess.correct ? 1 : 0;
@@ -32,7 +33,7 @@
 		Only if the {response} is close enough to the official version given above, then mark it as correct
 	</p>
 	<form action="?/mark.continue" method="POST" use:enhance>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+		<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 		{#each Object.entries($guesses) as [user, guess]}
 			<div class="card my-5">
 				<div class="card-header text-xs">User: {user}</div>

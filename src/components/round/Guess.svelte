@@ -5,7 +5,7 @@
 	 */
 	import config from '$lib/config';
 	import { DOUBLE_BLUFF, GUESS, SESSION, USERNAME } from '$lib/constants';
-	import { session, round, sessionData } from '$lib/store';
+	import { session, round } from '$lib/store';
 	import { getButtonVariant } from '$lib/utils';
 	import {
 		faCheckCircle,
@@ -19,7 +19,7 @@
 	import Prompter from '../parts/Prompter.svelte';
 	import { getCategoryWords } from '$lib/utils';
 
-	const { players } = session;
+	const { players, data } = session;
 	const { dasher, guesses, time, category } = round;
 	$: ({ prompt, response } = getCategoryWords($category));
 	const user = getContext(USERNAME);
@@ -59,7 +59,7 @@
 	method="POST"
 	action="?/guess.submit"
 >
-	<input type="text" name="session" value={JSON.stringify($sessionData)} hidden />
+	<input type="text" name="session" value={JSON.stringify($data)} hidden />
 	<!-- Input area -->
 	{#if !isDasher && submitted}
 		<p class="font-bold py-2">Guess submitted</p>
@@ -127,7 +127,7 @@
 	{/if}
 	{#if isDasher && (guessing === 0 || seconds <= 0)}
 		<form method="POST" action="?/guess.continue">
-			<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+			<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 			<button type="submit" class="btn variant-filled btn-lg my-5 rounded-lg w-full"
 				>Continue</button
 			>

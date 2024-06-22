@@ -57,11 +57,6 @@
 	};
 </script>
 
-{#if $data === undefined}
-	<p>No data!</p>
-{:else}
-	{JSON.stringify($data)}
-{/if}
 <div class="text-center">
 	<h1 class="h1 mb-5">Lobby</h1>
 	<div class="border-2 border-surface-400 rounded-lg p-5">

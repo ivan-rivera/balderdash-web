@@ -1,14 +1,14 @@
 <script>
 	import { enhance } from '$app/forms';
 	import { KICKED, SESSION } from '$lib/constants';
-	import { session, sessionData } from '$lib/store';
+	import { session } from '$lib/store';
 	import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 	import { getModalStore } from '@skeletonlabs/skeleton';
 	import Fa from 'svelte-fa';
 	import posthog from 'posthog-js';
 
 	const modalStore = getModalStore();
-	const { players } = session;
+	const { players, data } = session;
 	let playerToRemove = $players[0];
 </script>
 
@@ -29,7 +29,7 @@
 			modalStore.close();
 		}}
 	>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+		<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 		<label class="label pt-5">
 			<span class="text-lg">Player to remove</span>
 			<select class="select" name={KICKED} bind:value={playerToRemove}>

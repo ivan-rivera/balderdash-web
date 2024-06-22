@@ -5,10 +5,11 @@
 
 	import Prompter from '../parts/Prompter.svelte';
 	import { SESSION, USERNAME } from '$lib/constants';
-	import { round, sessionData } from '$lib/store';
+	import { round, session } from '$lib/store';
 	import { getContext } from 'svelte';
 	import { enhance } from '$app/forms';
 
+	const { data } = session;
 	const { dasher, guesses } = round;
 	let user = getContext(USERNAME);
 	$: userIsDasher = $dasher === user;
@@ -39,7 +40,7 @@
 		Assigning multiple guesses into a single dropdown category will merge them
 	</p>
 	<form action="?/group.continue" method="POST" use:enhance>
-		<input type="text" name={SESSION} value={JSON.stringify($sessionData)} hidden />
+		<input type="text" name={SESSION} value={JSON.stringify($data)} hidden />
 		{#each Object.entries(incorrectGuesses) as [user, guess]}
 			<div class="card my-5">
 				<div class="card-header text-xs">User: {user}</div>
