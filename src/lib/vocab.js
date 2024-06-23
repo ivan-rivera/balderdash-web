@@ -24,7 +24,11 @@ export function getRandomPair(vocab) {
 	const keys = Object.keys(vocab);
 	const index = Math.floor(Math.random() * keys.length);
 	const key = keys[index];
-	return { prompt: key, response: vocab[key] };
+	const value = vocab[key];
+	return {
+		prompt: capitalizeFirstLetter(key),
+		response: capitalizeFirstLetter(value),
+	};
 }
 
 /**
@@ -44,13 +48,23 @@ export function getPhonyResponse(vocab, truePrompt) {
  */
 export async function loadVocabs() {
 	if (cache.vocabs) return cache.vocabs;
-	const vocabPromises = config.categories.map(async (category) => {
-		return {
-			category: category.name,
-			vocab: await loadVocab(category.source),
-		};
-	});
-	const vocabs = await Promise.all(vocabPromises);
-	cache.vocabs = vocabs;
-	return vocabs;
+	cache.vocabs = (async () => {
+		const vocabPromises = config.categories.map(async (category) => {
+			return {
+				category: category.name,
+				vocab: await loadVocab(category.source),
+			};
+		});
+		return await Promise.all(vocabPromises);
+	})();
+	return cache.vocabs;
+}
+
+/**
+ * Capitalise first letter
+ * @param string
+ * @returns {string}
+ */
+function capitalizeFirstLetter(string) {
+	return string.charAt(0).toUpperCase() + string.slice(1);
 }

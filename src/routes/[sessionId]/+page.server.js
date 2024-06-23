@@ -9,9 +9,11 @@ import { proceed as groupProceed } from '$lib/game/group';
 import { cast as voteCast, proceed as voteProceed } from '$lib/game/vote';
 import { proceed as tallyProceed } from '$lib/game/tally';
 import { enquire } from '$lib/contact';
+import { loadVocabs } from '$lib/vocab.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies, params }) {
+	await loadVocabs();
 	return {
 		session: await getSession(params.sessionId),
 		username: cookies.get(USERNAME) || '',
