@@ -12,12 +12,12 @@ export const actions = {
 		const username = String(data.get(USERNAME));
 		const sessionId = String(data.get(SESSION_ID));
 		const uid = String(cookies.get('uid'));
+		if (!(await sessionIdExists(sessionId)))
+			return fail(400, { success: false, message: 'Session does not exist' });
 		const session = await getSession(sessionId);
 		const players = Object.prototype.hasOwnProperty.call(session, SCOREBOARD)
 			? Object.keys(session.scoreboard)
 			: [];
-		if (!(await sessionIdExists(sessionId)))
-			return fail(400, { success: false, message: 'Session does not exist' });
 		if (players.includes(username))
 			return fail(400, { success: false, message: 'Username already exists' });
 		if (session.state !== SESSION_STATES.INITIATED)

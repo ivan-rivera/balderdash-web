@@ -64,6 +64,7 @@ export const feedbackRef = rtdb.ref(FEEDBACK);
  * @returns {Promise<Session>} - session data
  */
 export async function getSession(id) {
+	if (!(await sessionIdExists(id))) return null;
 	const snapshot = await dbRef.child(id).get();
 	return /** @type {Session} */ (snapshot.val());
 }
